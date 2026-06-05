@@ -937,9 +937,8 @@ The model achieves a **97.41% P-wave detection F1-score** and **99.1% sensitivit
 
 Developed as part of a final-year clinical AI research project:
 
-* **[Developer Name]** - *Clinical AI Lead & Deep Learning Engineer* - `[developer-email@example.com]`
-* **[Supervisor Name]** - *Project Advisor & Academic Director* - `[supervisor-email@example.com]`
-* **[Clinical Institution Name]** - *Department of Medical Informatics & Electrophysiology*
+* **[Dumindu Induwara Gamage]** - *Clinical AI Lead & Deep Learning Engineer* - `[developer-email@example.com]`
+* **[Ms. Kalahari Walawage]** - *Project Advisor & Project Supervisor* - `[supervisor-email@example.com]`
 
 ---
 
