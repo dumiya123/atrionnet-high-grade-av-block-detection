@@ -750,11 +750,16 @@ class AVBlockPredictor:
             importance_map, all_p, qrs_spans, t_spans, r_peaks, len(lead_ii)
         )
 
+        avg_pr_ms = round((np.mean(intervals['pr']) / FS * 1000), 1) if intervals.get('pr') else 0
+        heart_rate_bpm = round(60.0 / (np.mean(intervals['rr']) / FS), 1) if intervals.get('rr') else 72.0
+
         return {
             "diagnosis": diagnosis,
             "intervals": intervals,
             "clinical_metrics": {
                 **intervals,
+                "mean_pr_ms": avg_pr_ms,
+                "heart_rate_bpm": heart_rate_bpm,
                 "n_p_assoc": len(p_associated),
                 "n_p_dissoc": len(p_dissociated),
                 "n_p_total": len(all_p),

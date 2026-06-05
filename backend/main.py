@@ -180,11 +180,18 @@ async def analyze_ecg(file: UploadFile = File(...)):
                 for start, end in intervals
             ]
 
+        # Populate common clinical summary fields for frontend display
+        clinical_metrics = {
+            **result['clinical_metrics'],
+            "mean_pr_ms": float(np.mean(result['intervals']['pr']) / 500.0 * 1000) if result['intervals'].get('pr') else 0,
+            "heart_rate_bpm": float(60.0 / (np.mean(result['intervals']['rr']) / 500.0)) if result['intervals'].get('rr') else 0
+        }
+
         response_data = {
             "diagnosis": result['diagnosis']['av_block_type'],
             "confidence": float(result['diagnosis']['confidence']),
             "severity": result['diagnosis']['severity'],
-            "clinical_metrics": result['clinical_metrics'],
+            "clinical_metrics": clinical_metrics,
             "intervals": {
                 **result['intervals'],
                 "avg_pr": float(np.mean(result['intervals']['pr'])) if result['intervals']['pr'] else 0,
