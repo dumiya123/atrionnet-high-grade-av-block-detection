@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AtrionNet Docs — High-Grade AV Block Detection</title>
+  <meta name="description" content="Complete technical documentation for AtrionNet: a deep learning system for detecting high-grade AV blocks from 12-lead ECG recordings." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════ NAVBAR ═══════════════════════ -->
+<nav class="navbar">
+  <a class="nav-brand" href="#">
+    <div class="nav-logo">A</div>
+    <span class="nav-title">AtrionNet</span>
+    <span class="nav-version">v5.0</span>
+  </a>
+  <div class="nav-spacer"></div>
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search docs..." autocomplete="off" />
+  </div>
+  <button class="nav-btn" id="themeToggle" title="Toggle theme">🌙</button>
+  <button class="nav-btn hamburger" id="hamburger" title="Menu">☰</button>
+</nav>
+
+<!-- Search Results -->
+<div class="search-results" id="searchResults"></div>
+<div class="overlay" id="overlay"></div>
+
+<!-- ═══════════════════ LAYOUT ═══════════════════════ -->
+<div class="layout">
+
+  <!-- ─── SIDEBAR ─────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Getting Started</div>
+      <a class="sidebar-link active" data-target="overview">
+        <span class="icon">🏠</span> Overview
+      </a>
+      <a class="sidebar-link" data-target="problem">
+        <span class="icon">🫀</span> Problem Statement
+      </a>
+      <a class="sidebar-link" data-target="setup">
+        <span class="icon">⚙️</span> Installation
+      </a>
+      <a class="sidebar-link" data-target="quickstart">
+        <span class="icon">⚡</span> Quick Start
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Architecture</div>
+      <a class="sidebar-link" data-target="arch-overview">
+        <span class="icon">🧠</span> Model Overview
+      </a>
+      <div class="sidebar-sub">
+        <a class="sidebar-link" data-target="arch-inception">AttentionalInception</a>
+        <a class="sidebar-link" data-target="arch-se">SE Attention</a>
+        <a class="sidebar-link" data-target="arch-bridge">Dilated CNN Bridge</a>
+        <a class="sidebar-link" data-target="arch-decoder">Decoder + Skip Connections</a>
+        <a class="sidebar-link" data-target="arch-heads">Output Heads</a>
+        <a class="sidebar-link" data-target="arch-baseline">Baseline Model</a>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Data Pipeline</div>
+      <a class="sidebar-link" data-target="dataset">
+        <span class="icon">🗄️</span> LUDB Dataset
+      </a>
+      <a class="sidebar-link" data-target="ludb-loader">
+        <span class="icon">📥</span> LUDBLoader
+      </a>
+      <a class="sidebar-link" data-target="augmentations">
+        <span class="icon">🔀</span> Augmentations
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Training</div>
+      <a class="sidebar-link" data-target="training-config">
+        <span class="icon">🎛️</span> Configuration
+      </a>
+      <a class="sidebar-link" data-target="loss-functions">
+        <span class="icon">📉</span> Loss Functions
+      </a>
+      <a class="sidebar-link" data-target="training-loop">
+        <span class="icon">🔁</span> Training Loop
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Inference</div>
+      <a class="sidebar-link" data-target="predictor">
+        <span class="icon">🔬</span> AVBlockPredictor
+      </a>
+      <a class="sidebar-link" data-target="signal-processing">
+        <span class="icon">📊</span> Signal Processing
+      </a>
+      <a class="sidebar-link" data-target="classification">
+        <span class="icon">🏥</span> AV Block Classification
+      </a>
+      <a class="sidebar-link" data-target="xai">
+        <span class="icon">💡</span> Explainability (XAI)
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">API Reference</div>
+      <a class="sidebar-link" data-target="api-overview">
+        <span class="icon">🌐</span> API Overview
+      </a>
+      <div class="sidebar-sub">
+        <a class="sidebar-link" data-target="api-health">GET /health</a>
+        <a class="sidebar-link" data-target="api-preview">POST /preview</a>
+        <a class="sidebar-link" data-target="api-analyze">POST /analyze</a>
+        <a class="sidebar-link" data-target="api-report">GET /report/{id}</a>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Evaluation</div>
+      <a class="sidebar-link" data-target="metrics">
+        <span class="icon">📈</span> Metrics
+      </a>
+      <a class="sidebar-link" data-target="nms">
+        <span class="icon">🎯</span> 1D NMS & Thresholds
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Frontend</div>
+      <a class="sidebar-link" data-target="frontend">
+        <span class="icon">🖥️</span> Dashboard
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-heading">Reference</div>
+      <a class="sidebar-link" data-target="project-structure">
+        <span class="icon">📁</span> Project Structure
+      </a>
+      <a class="sidebar-link" data-target="tech-stack">
+        <span class="icon">🔧</span> Tech Stack
+      </a>
+    </div>
+
+  </aside>
+
+  <!-- ─── MAIN CONTENT ─────────────────────────────── -->
+  <main class="content">
+
+    <!-- ══════ OVERVIEW ══════════════════════════════ -->
+    <section class="doc-section" id="overview">
+      <div class="hero">
+        <h1>AtrionNet Documentation</h1>
+        <p>A deep learning system for automated detection and classification of high-grade atrioventricular (AV) blocks from 12-lead ECG recordings, with wave-level segmentation and clinical explainability.</p>
+        <div class="hero-badges">
+          <span class="badge badge-blue">PyTorch 2.0+</span>
+          <span class="badge badge-green">FastAPI</span>
+          <span class="badge badge-cyan">React + Vite</span>
+          <span class="badge badge-purple">12-Lead ECG</span>
+          <span class="badge badge-yellow">LUDB Dataset</span>
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🧠</div>
+          <h3>Hybrid Architecture</h3>
+          <p>Multi-scale Attentional Inception encoder + Dilated CNN bridge — stable on 5000-sample sequences.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌊</div>
+          <h3>Wave Segmentation</h3>
+          <p>Detects P, QRS, and T waves with sample-level boundary precision. Identifies dissociated P-waves.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏥</div>
+          <h3>5 Diagnosis Classes</h3>
+          <p>Normal to 3rd Degree (Complete) AV block. Rule-based classifier on measured PR/RR intervals.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💡</div>
+          <h3>Built-in XAI</h3>
+          <p>Heatmap output head trained directly on P-wave probability. Confidence score from model outputs.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📄</div>
+          <h3>PDF Reports</h3>
+          <p>Generates structured clinical reports with diagnosis, intervals, heart rate, and XAI overlay.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌐</div>
+          <h3>REST API + Dashboard</h3>
+          <p>FastAPI backend with /preview, /analyze, /report endpoints. React frontend dashboard.</p>
+        </div>
+      </div>
+
+      <h2>System Architecture</h2>
+      <p>AtrionNet has three layers that communicate over HTTP. The user interacts with the React dashboard, which calls the FastAPI backend, which runs the PyTorch model and returns structured results.</p>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span class="code-lang">diagram</span>
+          <button class="copy-btn">Copy</button>
+        </div>
+        <pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                    React + Vite Frontend                        │
+│   HomePage | AnalysisPage | InstructionsPage | AboutPage        │
+│                        localhost:5173                           │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │ HTTP (REST)
+┌──────────────────────────▼──────────────────────────────────────┐
+│                    FastAPI Backend                               │
+│   /health  /preview  /analyze  /report/{id}                     │
+│                        localhost:8000                           │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │ Python import
+┌──────────────────────────▼──────────────────────────────────────┐
+│                  ML Component (PyTorch)                          │
+│   AtrionNetHybrid → AVBlockPredictor → XAI → ReportLab PDF     │
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ PROBLEM STATEMENT ══════════════════════ -->
+    <section class="doc-section" id="problem">
+      <h1>Problem Statement</h1>
+      <p class="section-subtitle">Why AV block detection is a hard problem and what makes it clinically critical.</p>
+
+      <h2>What Are AV Blocks?</h2>
+      <p>Atrioventricular (AV) blocks are electrical conduction abnormalities in the cardiac conduction system. Under normal sinus rhythm, every P-wave (atrial depolarisation) is followed by a QRS complex (ventricular contraction) after a fixed PR interval of 120–200 ms. AV blocks disrupt this coupling in different ways depending on severity.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Degree</th><th>What Happens</th><th>PR Interval</th><th>P:QRS Ratio</th><th>Severity</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Normal</td><td>Every P followed by QRS, fixed PR</td><td>120–200 ms</td><td>1:1</td><td><span class="badge badge-green">Normal</span></td></tr>
+            <tr><td>1st Degree</td><td>All P-waves conducted, but PR is prolonged</td><td>&gt;200 ms (fixed)</td><td>1:1</td><td><span class="badge badge-blue">Mild</span></td></tr>
+            <tr><td>2nd Degree Mobitz I</td><td>PR progressively lengthens until a QRS is dropped (Wenckebach)</td><td>Progressive</td><td>&gt;1:1</td><td><span class="badge badge-yellow">Moderate</span></td></tr>
+            <tr><td>2nd Degree Mobitz II</td><td>Sudden dropped QRS with no PR warning</td><td>Fixed, then dropped</td><td>&gt;1:1</td><td><span class="badge badge-red">Severe</span></td></tr>
+            <tr><td>3rd Degree (Complete)</td><td>Full dissociation — atria and ventricles beat independently</td><td>No association</td><td>&gt;1.9:1</td><td><span class="badge badge-red">Critical</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>The Technical Challenges</h2>
+
+      <h3>1. P-wave Detection is Hard</h3>
+      <p>P-waves are the most difficult waveform to detect automatically in ECG:</p>
+      <ul>
+        <li><strong>Low amplitude</strong> — typically 0.1–0.2 mV, one-tenth of QRS amplitude (~1–2 mV)</li>
+        <li><strong>Morphological variability</strong> — shape changes between patients and AV block types</li>
+        <li><strong>Overlap risk</strong> — in fast rhythms, P-waves can overlap with the preceding T-wave</li>
+        <li><strong>Buried in noise</strong> — powerline interference (50/60 Hz) and baseline wander mask small P-waves</li>
+        <li><strong>Dissociation</strong> — in 3rd Degree block, P-waves are unrelated to QRS and can appear anywhere including within the QRS or T-wave</li>
+      </ul>
+
+      <h3>2. PR Interval Precision Required</h3>
+      <p>At 500 Hz, 1 sample = 2 ms. A PR interval of 200 ms = 100 samples. A 10-sample error is a 20 ms diagnostic error — enough to misclassify a borderline 1st Degree block. The model must localise P-wave boundaries accurately.</p>
+
+      <h3>3. Existing Systems Are Inadequate</h3>
+      <ul>
+        <li>Hospital ECG machines use threshold-based algorithms designed in the 1980s — they output "abnormal ECG" without wave-level detail</li>
+        <li>Most deep learning ECG research targets AF or STEMI — AV block classification with wave segmentation is underexplored</li>
+        <li>XAI in ECG papers is usually post-hoc (GradCAM applied after training) — AtrionNet trains the heatmap head directly</li>
+        <li>No existing open-source system combines P-wave detection + PR interval measurement + AV block classification + explainability in one pipeline</li>
+      </ul>
+
+      <div class="callout callout-warning">
+        <div class="callout-title">⚠️ Research Disclaimer</div>
+        <p>AtrionNet is a research system. It has not been clinically validated or approved for diagnostic use. Do not use it as a substitute for clinical ECG interpretation.</p>
+      </div>
+    </section>
+
+    <!-- ══════ INSTALLATION ═══════════════════════════ -->
+    <section class="doc-section" id="setup">
+      <h1>Installation</h1>
+      <p class="section-subtitle">Setting up AtrionNet from scratch.</p>
+
+      <h2>Prerequisites</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Requirement</th><th>Minimum</th><th>Recommended</th></tr></thead>
+          <tbody>
+            <tr><td>Python</td><td>3.9</td><td>3.11</td></tr>
+            <tr><td>CUDA GPU</td><td>—</td><td>RTX 3060 or higher</td></tr>
+            <tr><td>RAM</td><td>8 GB</td><td>16 GB+</td></tr>
+            <tr><td>Node.js</td><td>18</td><td>20+</td></tr>
+            <tr><td>Disk space</td><td>3 GB</td><td>5 GB (LUDB + model)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Step 1 — Clone the Repository</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-bash">git clone https://github.com/dumiya123/avscan-high-grade-av-block-detection.git
+cd AtrionNet_Implementation</code></pre>
+      </div>
+
+      <h2>Step 2 — Python Virtual Environment</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-bash"># Create and activate virtual environment
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# macOS / Linux
+source .venv/bin/activate</code></pre>
+      </div>
+
+      <h2>Step 3 — Install Python Dependencies</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><span class="code-filename">ml_component/</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-bash">cd ml_component
+pip install -r requirements.txt</code></pre>
+      </div>
+
+      <h2>Step 4 — Download LUDB Dataset</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-bash">python download_data.py
+# Requires a free PhysioNet account
+# Downloads to: ml_component/data/raw/ludb/</code></pre>
+      </div>
+
+      <h2>Step 5 — Install Frontend Dependencies</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><span class="code-filename">frontend/</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-bash">cd ../frontend
+npm install</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">📦 Key Python Packages</div>
+        <p><code>torch≥2.0</code>, <code>wfdb≥4.1</code>, <code>neurokit2≥0.2.7</code>, <code>scipy≥1.10</code>, <code>fastapi≥0.100</code>, <code>reportlab≥4.0</code>, <code>captum≥0.6</code></p>
+      </div>
+    </section>
+
+    <!-- ══════ QUICK START ════════════════════════════ -->
+    <section class="doc-section" id="quickstart">
+      <h1>Quick Start</h1>
+      <p class="section-subtitle">Running the full system in three terminal windows.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Train (or skip if you have a checkpoint)</h4>
+            <p>Run training from the <code>ml_component/</code> directory. The best checkpoint is saved automatically.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Start the Backend</h4>
+            <p>FastAPI loads the model checkpoint on startup. Check <code>/health</code> to confirm model is loaded.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Start the Frontend</h4>
+            <p>Vite dev server serves the React dashboard at <code>localhost:5173</code>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Upload a test ECG</h4>
+            <p>Use <code>generate_test_case.py</code> to create a <code>.npy</code> file from LUDB, then upload it in the dashboard.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><span class="code-filename">Terminal 1 — Train</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-bash">cd ml_component
+python train.py</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><span class="code-filename">Terminal 2 — Backend</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-bash">cd backend
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload</code></pre>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">bash</span><span class="code-filename">Terminal 3 — Frontend</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-bash">cd frontend
+npm run dev</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ ARCHITECTURE OVERVIEW ══════════════════ -->
+    <section class="doc-section" id="arch-overview">
+      <h1>Architecture Overview</h1>
+      <p class="section-subtitle">AtrionNetHybrid v5.0 — Multi-Scale CNN + Dilated Convolutional Context + Attentional Gating.</p>
+
+      <p>The model is a U-Net style encoder-decoder. Input is a 12-lead ECG of shape <code>(12, 5000)</code> at 500 Hz (10 seconds). Output is three prediction maps, each of shape <code>(1, 5000)</code>: a P-wave probability heatmap, a width map, and a binary segmentation mask.</p>
+
+      <div class="arch-diagram">
+        <div class="arch-flow">
+          <div class="arch-layer arch-input">
+            Input: (12, 5000) — 12 leads × 5000 samples @ 500 Hz
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer arch-enc">
+            AttentionalInception Enc1 → 64 channels
+            <span class="arch-label">→ Skip e1</span>
+          </div>
+          <div class="arch-arrow">↓ MaxPool2</div>
+          <div class="arch-layer arch-enc">
+            AttentionalInception Enc2 → 128 channels
+            <span class="arch-label">→ Skip e2</span>
+          </div>
+          <div class="arch-arrow">↓ MaxPool2</div>
+          <div class="arch-layer arch-enc">
+            AttentionalInception Enc3 → 256 channels
+            <span class="arch-label">→ Skip e3</span>
+          </div>
+          <div class="arch-arrow">↓ MaxPool2</div>
+          <div class="arch-layer arch-bridge">
+            Dilated CNN Bridge: 256→512ch (dilations: 1, 2, 4)
+            <span class="arch-label">625 samples</span>
+          </div>
+          <div class="arch-arrow">↓ ConvTranspose2</div>
+          <div class="arch-skip-note">← skip concat e3 →</div>
+          <div class="arch-layer arch-dec">
+            AttentionalInception Dec3 → 256 channels
+          </div>
+          <div class="arch-arrow">↓ ConvTranspose2</div>
+          <div class="arch-skip-note">← skip concat e2 →</div>
+          <div class="arch-layer arch-dec">
+            AttentionalInception Dec2 → 128 channels
+          </div>
+          <div class="arch-arrow">↓ ConvTranspose2</div>
+          <div class="arch-skip-note">← skip concat e1 →</div>
+          <div class="arch-layer arch-dec">
+            AttentionalInception Dec1 → 64 channels
+          </div>
+          <div class="arch-arrow">↓</div>
+          <div class="arch-layer arch-output">
+            Heatmap Head (Sigmoid) | Width Head | Mask Head — (1, 5000) each
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ ATTENTIONAL INCEPTION ══════════════════ -->
+    <section class="doc-section" id="arch-inception">
+      <h1>AttentionalInception Block</h1>
+      <p class="section-subtitle">The core building block of both encoder and decoder — multi-scale feature extraction with attention gating.</p>
+
+      <p>Each encoder and decoder level uses an <code>AttentionalInception</code> block. It's an Inception module modified with a Squeeze-and-Excitation attention gate and a residual connection.</p>
+
+      <h2>Structure</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">diagram</span></div>
+        <pre><code>Input → Bottleneck (1×1 Conv)
+             │
+      ┌──────┼──────┐
+      │      │      │
+ Conv1D×9 Conv1D×19 Conv1D×39   + Residual (1×1 Conv from Input)
+      │      │      │              │
+      └──────┴──────┴──────────────┘
+                    │ Concatenate
+                    ↓
+           SE Attention Block
+                    ↓
+             BatchNorm + ReLU</code></pre>
+      </div>
+
+      <h3>Kernel Sizes — Why 9, 19, 39?</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kernel</th><th>Samples</th><th>Duration @ 500Hz</th><th>What it captures</th></tr></thead>
+          <tbody>
+            <tr><td><code>9</code></td><td>9</td><td>18 ms</td><td>Fine P-wave edge detail, noise suppression</td></tr>
+            <tr><td><code>19</code></td><td>19</td><td>38 ms</td><td>P-wave body (typical P-wave width 80–120 ms)</td></tr>
+            <tr><td><code>39</code></td><td>39</td><td>78 ms</td><td>Broad P-wave envelope, inter-wave context</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Source Code</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/modeling/atrion_net.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">class AttentionalInception(nn.Module):
+    """Inception block with integrated Self-Attention to focus on weak P-waves."""
+    def __init__(self, in_channels, out_channels):
+        super(AttentionalInception, self).__init__()
+        self.bottleneck = nn.Conv1d(in_channels, out_channels // 4, kernel_size=1)
+
+        # Multi-scale convolutions
+        self.conv_small  = nn.Conv1d(out_channels // 4, out_channels // 4, kernel_size=9,  padding=4)
+        self.conv_medium = nn.Conv1d(out_channels // 4, out_channels // 4, kernel_size=19, padding=9)
+        self.conv_large  = nn.Conv1d(out_channels // 4, out_channels // 4, kernel_size=39, padding=19)
+        self.residual    = nn.Conv1d(in_channels, out_channels // 4, kernel_size=1)
+
+        self.attention = AttentionBlock1D(out_channels)
+        self.bn  = nn.BatchNorm1d(out_channels)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        res    = self.residual(x)
+        x_btn  = self.bottleneck(x)
+        out1   = self.conv_small(x_btn)
+        out2   = self.conv_medium(x_btn)
+        out3   = self.conv_large(x_btn)
+        out    = torch.cat([out1, out2, out3, res], dim=1)
+        out    = self.attention(out)
+        return self.relu(self.bn(out))</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ SE ATTENTION ════════════════════════════ -->
+    <section class="doc-section" id="arch-se">
+      <h1>Squeeze-and-Excitation Attention</h1>
+      <p class="section-subtitle">Channel-wise attention that weights ECG frequency bands relevant to P-wave detection.</p>
+
+      <p>The <code>AttentionBlock1D</code> is a 1D adaptation of the Squeeze-and-Excitation (SE) block. It learns to up-weight channels that contain P-wave frequency content (0.5–15 Hz) and suppress channels dominated by QRS energy (5–40 Hz).</p>
+
+      <h2>How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Squeeze</h4>
+            <p>Global average pooling across the sequence length: <code>(B, C, L) → (B, C)</code>. Produces a single descriptor per channel.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Excitation</h4>
+            <p>Two-layer FC network: <code>C → C//16 → C</code> with ReLU + Sigmoid. Produces per-channel attention weights in [0,1].</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Scale</h4>
+            <p>Element-wise multiplication of input feature map by attention weights: boosts informative channels, suppresses noise channels.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/modeling/atrion_net.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">class AttentionBlock1D(nn.Module):
+    """Squeeze-and-Excitation variant for 1D ECG signals."""
+    def __init__(self, channels, reduction=16):
+        super(AttentionBlock1D, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool1d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(channels, channels // reduction, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Linear(channels // reduction, channels, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _ = x.size()
+        y = self.avg_pool(x).view(b, c)      # Squeeze
+        y = self.fc(y).view(b, c, 1)         # Excitation
+        return x * y.expand_as(x)            # Scale</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ DILATED CNN BRIDGE ═════════════════════ -->
+    <section class="doc-section" id="arch-bridge">
+      <h1>Dilated CNN Bridge</h1>
+      <p class="section-subtitle">Why the BiLSTM was replaced and how dilated convolutions solve the problem.</p>
+
+      <div class="callout callout-warning">
+        <div class="callout-title">⚠️ Why Not BiLSTM?</div>
+        <p>Early versions (v1–v4) of AtrionNet used a Bidirectional LSTM at the bottleneck. With a 625-step sequence after three pooling layers, the BiLSTM suffered severe vanishing gradient issues. Training would converge initially then collapse — the model predicted zero P-waves after ~30 epochs. The Dilated CNN Bridge was the architectural solution.</p>
+      </div>
+
+      <h2>Dilated Convolutions</h2>
+      <p>A dilated convolution (also called atrous convolution) inserts gaps between filter weights, exponentially expanding the receptive field without increasing the number of parameters or reducing resolution.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layer</th><th>Channels</th><th>Dilation</th><th>Receptive Field</th><th>Coverage @ Input</th></tr></thead>
+          <tbody>
+            <tr><td>Bridge 1</td><td>256 → 512</td><td>1</td><td>3 samples</td><td>24 ms</td></tr>
+            <tr><td>Bridge 2</td><td>512 → 512</td><td>2</td><td>5 samples</td><td>40 ms</td></tr>
+            <tr><td>Bridge 3</td><td>512 → 512</td><td>4</td><td>9 samples</td><td>72 ms</td></tr>
+            <tr><td><strong>Combined</strong></td><td>—</td><td>—</td><td>9 samples @ bottleneck</td><td>~720 ms @ input</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-success">
+        <div class="callout-title">✅ Result</div>
+        <p>720 ms effective receptive field at the input level — sufficient to model inter-P-wave timing, which is physiologically 300–800 ms in AV block cases. No recurrence = no vanishing gradients.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/modeling/atrion_net.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python"># Bridge: Dilated Convolutional Context (Solves BiLSTM Vanishing Gradients)
+self.bridge1 = nn.Conv1d(256, 512, kernel_size=3, padding=1, dilation=1)
+self.bridge_bn1 = nn.BatchNorm1d(512)
+self.bridge2 = nn.Conv1d(512, 512, kernel_size=3, padding=2, dilation=2)
+self.bridge_bn2 = nn.BatchNorm1d(512)
+self.bridge3 = nn.Conv1d(512, 512, kernel_size=3, padding=4, dilation=4)
+self.bridge_bn3 = nn.BatchNorm1d(512)
+self.bridge_relu = nn.ReLU()
+self.drop_b = nn.Dropout(0.2)
+
+# In forward():
+b = self.pool3(self.drop_e3(e3))
+b = self.bridge_relu(self.bridge_bn1(self.bridge1(b)))
+b = self.bridge_relu(self.bridge_bn2(self.bridge2(b)))
+b = self.bridge_relu(self.bridge_bn3(self.bridge3(b)))
+b = self.drop_b(b)</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ DECODER ════════════════════════════════ -->
+    <section class="doc-section" id="arch-decoder">
+      <h1>Decoder + Skip Connections</h1>
+      <p class="section-subtitle">Reconstructing full-resolution segmentation maps from the compressed bridge representation.</p>
+
+      <p>The decoder mirrors the encoder. At each level, <code>ConvTranspose1d</code> upsamples by ×2, then concatenates the matching encoder skip connection before passing through an <code>AttentionalInception</code> block. Dropout (p=0.2) is applied after each decoder block during training.</p>
+
+      <h2>Why Skip Connections Matter Here</h2>
+      <p>The encoder compresses the 5000-sample sequence to 625 samples at the bottleneck. Fine-grained P-wave boundary information (onset/offset at sample precision) is lost at deep levels. Skip connections carry this high-resolution spatial detail from the encoder directly to the corresponding decoder level, allowing the model to reconstruct precise wave boundaries rather than just coarse locations.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/modeling/atrion_net.py — forward()</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">def forward(self, x):
+    # Encoder
+    e1 = self.enc1(x)
+    e2 = self.enc2(self.pool1(self.drop_e1(e1)))
+    e3 = self.enc3(self.pool2(self.drop_e2(e2)))
+
+    # Bridge
+    b = self.pool3(self.drop_e3(e3))
+    b = self.bridge_relu(self.bridge_bn1(self.bridge1(b)))
+    b = self.bridge_relu(self.bridge_bn2(self.bridge2(b)))
+    b = self.bridge_relu(self.bridge_bn3(self.bridge3(b)))
+    b = self.drop_b(b)
+
+    # Decoder with skip connections
+    d3 = self.drop_d3(self.dec3(torch.cat([self.up3(b), e3], dim=1)))
+    d2 = self.drop_d2(self.dec2(torch.cat([self.up2(d3), e2], dim=1)))
+    d1 = self.dec1(torch.cat([self.up1(d2), e1], dim=1))
+
+    return {
+        'heatmap': self.heatmap_head(d1),
+        'width':   self.width_head(d1),
+        'mask':    self.mask_head(d1)
+    }</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ OUTPUT HEADS ════════════════════════════ -->
+    <section class="doc-section" id="arch-heads">
+      <h1>Output Heads</h1>
+      <p class="section-subtitle">Three parallel prediction heads — each producing a (1, 5000) output from the 64-channel decoder feature map.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Head</th><th>Architecture</th><th>Activation</th><th>Output Range</th><th>Trained With</th><th>Used For</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Heatmap</strong></td>
+              <td><code>Conv64→32, BN, ReLU, Dropout(0.1), Conv32→1</code></td>
+              <td>Sigmoid</td>
+              <td>[0.0, 1.0]</td>
+              <td>Focal Loss</td>
+              <td>P-wave presence probability at each sample. Primary detection signal.</td>
+            </tr>
+            <tr>
+              <td><strong>Width</strong></td>
+              <td><code>Conv64→32, BN, ReLU, Conv32→1</code></td>
+              <td>None (raw logit)</td>
+              <td>ℝ</td>
+              <td>Smooth L1</td>
+              <td>Predicted P-wave width. Logit is scaled by 5000 to decode span.</td>
+            </tr>
+            <tr>
+              <td><strong>Mask</strong></td>
+              <td><code>Conv64→32, BN, ReLU, Conv32→1</code></td>
+              <td>None (raw logit)</td>
+              <td>ℝ (Sigmoid at eval)</td>
+              <td>Weighted BCE + Dice</td>
+              <td>Binary segmentation mask — 1 where a P-wave exists, 0 otherwise.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Heatmap Target Generation</h2>
+      <p>During training, the heatmap target is a Gaussian distribution centered on each P-wave peak:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python"># Gaussian heatmap target (sigma=6 samples = 12ms at 500Hz)
+sigma = 6
+for onset, peak, offset in p_waves:
+    center = peak
+    for i in range(max(0, center - 3*sigma), min(5000, center + 3*sigma)):
+        heatmap[i] = max(heatmap[i],
+                         np.exp(-((i - center)**2) / (2 * sigma**2)))</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">ℹ️ Why σ=6?</div>
+        <p>σ=6 samples = 12 ms at 500 Hz. This creates a tight Gaussian that rewards the model for precise peak localisation while still providing a gradient surface around the true peak. At σ=6 the target exceeds 0.8 (the Focal Loss positive threshold) only within ±8 samples (~16 ms) of the true peak.</p>
+      </div>
+    </section>
+
+    <!-- ══════ BASELINE ════════════════════════════════ -->
+    <section class="doc-section" id="arch-baseline">
+      <h1>AtrionNetBaseline</h1>
+      <p class="section-subtitle">Simple U-Net without attention or dilated bridge — used for ablation studies.</p>
+
+      <p>The baseline model uses standard Conv-BatchNorm-ReLU blocks at each level instead of <code>AttentionalInception</code>. It has no SE attention and no dilated bridge — the bottleneck is a plain <code>enc3</code> block. Same three output heads and same loss function.</p>
+
+      <p>Purpose: quantify the contribution of the Attentional Inception encoder and the Dilated CNN Bridge by comparing performance against the hybrid model under identical training conditions.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/modeling/atrion_net.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">class AtrionNetBaseline(nn.Module):
+    """Competitive U-Net Baseline for fair ablation study."""
+    def __init__(self, in_channels=12):
+        super(AtrionNetBaseline, self).__init__()
+        def cbr(in_c, out_c):
+            return nn.Sequential(
+                nn.Conv1d(in_c, out_c, 3, padding=1),
+                nn.BatchNorm1d(out_c),
+                nn.ReLU()
+            )
+        self.enc1  = cbr(in_channels, 64)
+        self.pool1 = nn.MaxPool1d(2)
+        self.enc2  = cbr(64, 128)
+        self.pool2 = nn.MaxPool1d(2)
+        self.enc3  = cbr(128, 256)
+
+        self.up2   = nn.ConvTranspose1d(256, 128, 2, 2)
+        self.dec2  = cbr(256, 128)
+        self.up1   = nn.ConvTranspose1d(128, 64, 2, 2)
+        self.dec1  = cbr(128, 64)
+
+        self.h = nn.Sequential(nn.Conv1d(64, 1, 1), nn.Sigmoid())
+        self.w = nn.Conv1d(64, 1, 1)
+        self.m = nn.Sequential(nn.Conv1d(64, 1, 1), nn.Sigmoid())</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ DATASET ════════════════════════════════ -->
+    <section class="doc-section" id="dataset">
+      <h1>LUDB Dataset</h1>
+      <p class="section-subtitle">Lobachevsky University Electrocardiography Database — the training data source.</p>
+
+      <div class="metric-grid">
+        <div class="metric-card"><div class="metric-value">200</div><div class="metric-label">ECG Records</div></div>
+        <div class="metric-card"><div class="metric-value">12</div><div class="metric-label">Leads Per Record</div></div>
+        <div class="metric-card"><div class="metric-value">500</div><div class="metric-label">Hz Sample Rate</div></div>
+        <div class="metric-card"><div class="metric-value">5000</div><div class="metric-label">Samples (10 sec)</div></div>
+      </div>
+
+      <h2>What's in LUDB</h2>
+      <p>LUDB contains 200 12-lead ECGs from 200 patients, each 10 seconds at 500 Hz. Each ECG is annotated by expert cardiologists at the individual wave level for multiple leads:</p>
+      <ul>
+        <li><strong>P-wave:</strong> onset, peak, offset positions (in samples)</li>
+        <li><strong>QRS complex:</strong> onset, peak, offset</li>
+        <li><strong>T-wave:</strong> onset, peak, offset</li>
+      </ul>
+      <p>The dataset covers a range of rhythm types including normal sinus rhythm, various AV block degrees, bundle branch blocks, right/left axis deviation, and hypertrophy patterns.</p>
+
+      <h2>Annotation Format</h2>
+      <p>Files are in WFDB format. For each record <code>N</code>, there is:</p>
+      <ul>
+        <li><code>N.hea</code> — header file with metadata (leads, sampling rate, gain)</li>
+        <li><code>N.dat</code> — binary signal data</li>
+        <li><code>N.ii</code>, <code>N.v1</code>, <code>N.v5</code>, etc. — per-lead annotation files</li>
+      </ul>
+      <p>AtrionNet reads from Lead II annotations first (<code>.ii</code>), falling back through <code>v1, v5, i, iii, avf</code> if Lead II has no annotations.</p>
+
+      <h2>Annotation Parsing Logic</h2>
+      <p>The P-wave annotation symbols are stored as triplets: <code>(</code> (onset), <code>p</code> (peak), <code>)</code> (offset). The loader scans the annotation sequence and extracts each <code>(p)</code> triplet:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/data_pipeline/ludb_loader.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">i = 0
+while i < len(ann.sample):
+    if ann.symbol[i] == '(' and i+2 < len(ann.sample):
+        if ann.symbol[i+1] == 'p' and ann.symbol[i+2] == ')':
+            onset  = ann.sample[i]
+            peak   = ann.sample[i+1]
+            offset = ann.sample[i+2]
+            if offset < self.target_length:   # 5000 samples
+                p_waves.append((onset, peak, offset))
+            i += 3
+        else:
+            i += 1
+    else:
+        i += 1</code></pre>
+      </div>
+
+      <h2>Train / Validation / Test Split</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Split</th><th>Records</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Train</td><td>~160</td><td>Model weight updates</td></tr>
+            <tr><td>Validation</td><td>~20</td><td>Early stopping & threshold calibration</td></tr>
+            <tr><td>Test</td><td>~20</td><td>Final mAP / F1 evaluation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">📎 PhysioNet Citation</div>
+        <p>Kalyakulina A, et al. "LUDB: A New Open-Access Validation Tool for Electrocardiogram Delineation Algorithms." Frontiers in Physiology, 2021. Source: <a href="https://physionet.org/content/ludb/1.0.1/" target="_blank">physionet.org/content/ludb/1.0.1</a></p>
+      </div>
+    </section>
+
+    <!-- ══════ LUDB LOADER ════════════════════════════ -->
+    <section class="doc-section" id="ludb-loader">
+      <h1>LUDBLoader</h1>
+      <p class="section-subtitle">The dataset reader class — handles WFDB format, annotation parsing, and record normalisation.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/data_pipeline/ludb_loader.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">from src.data_pipeline.ludb_loader import LUDBLoader
+
+loader = LUDBLoader(
+    data_dir="data/raw/ludb",
+    sampling_rate=500,
+    target_length=5000
+)
+
+# Load all annotated records
+signals, annotations = loader.get_all_data()
+# signals.shape: (N, 12, 5000)
+# annotations: List[{'p_waves': [(onset, peak, offset), ...]}]
+
+# Load a single record
+signal, p_waves, annotation_found = loader.load_record("record_001")</code></pre>
+      </div>
+
+      <h2>Record Discovery</h2>
+      <p>The loader recursively scans the data directory for <code>.hea</code> files using <code>Path.rglob()</code>. It stores a mapping of record stem → parent directory to correctly handle nested folder structures in the LUDB release. Files in <code>.ipynb_checkpoints</code> are automatically excluded.</p>
+
+      <h2>Signal Normalisation</h2>
+      <p>Records are cropped or zero-padded to exactly 5000 samples:</p>
+      <ul>
+        <li>If <code>signal.shape[1] > 5000</code>: crop to first 5000 samples</li>
+        <li>If <code>signal.shape[1] < 5000</code>: zero-pad on the right</li>
+      </ul>
+      <p>The resulting shape is always <code>(12, 5000)</code> — 12 leads, 5000 samples.</p>
+    </section>
+
+    <!-- ══════ AUGMENTATIONS ═══════════════════════════ -->
+    <section class="doc-section" id="augmentations">
+      <h1>Data Augmentations</h1>
+      <p class="section-subtitle">Physics-grounded signal augmentations that simulate real-world ECG noise sources.</p>
+
+      <p>AtrionNet uses a validated set of augmentations from <em>Joung et al. 2024</em>, implemented as composable transform classes. Each augmentation is applied with probability 0.3 independently.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Augmentation</th><th>Simulates</th><th>Probability</th><th>Parameters</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>BaselineWander</code></td>
+              <td>Patient breathing causing low-frequency drift (≤0.5 Hz)</td>
+              <td>0.3</td>
+              <td>Synthesized via cosine sums, scale ×0.2</td>
+            </tr>
+            <tr>
+              <td><code>PowerlineNoise</code></td>
+              <td>50 Hz mains interference with 3 harmonics</td>
+              <td>0.3</td>
+              <td>50 Hz, K=3 harmonics, scale ×0.05</td>
+            </tr>
+            <tr>
+              <td><code>GaussianNoise</code></td>
+              <td>Electrode contact noise, amplifier noise</td>
+              <td>0.3</td>
+              <td>σ=0.01 mV</td>
+            </tr>
+            <tr>
+              <td><code>BaselineShift</code></td>
+              <td>Electrode movement, patient repositioning</td>
+              <td>0.3</td>
+              <td>scale=0.05</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/data_pipeline/augmentations.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">from src.data_pipeline.augmentations import get_research_augmentations
+
+transform = get_research_augmentations()
+augmented_signal = transform(signal)  # Applies all 4 augmentations stochastically</code></pre>
+      </div>
+
+      <h2>Powerline Noise Synthesis</h2>
+      <p>The powerline noise function synthesizes realistic mains interference using cosine harmonics with random phase and amplitude per harmonic:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">def _tnoise_powerline(fs=500, N=5000, C=1.0, fn=50.0, K=3):
+    t = torch.arange(0, N/fs, 1./fs)
+    signal = torch.zeros(N)
+    phi1 = random.uniform(0, 2*math.pi)
+    for k in range(1, K+1):
+        ak = random.uniform(0, 1)
+        signal += C * ak * torch.cos(2*math.pi * k * fn * t + phi1)
+    return signal * 0.05   # Scale to realistic ECG amplitude</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ TRAINING CONFIG ════════════════════════ -->
+    <section class="doc-section" id="training-config">
+      <h1>Training Configuration</h1>
+      <p class="section-subtitle">All hyperparameters are centralised in ATRION_CONFIG at the top of train.py.</p>
+
+      <div class="param-grid">
+        <div class="param-item"><span class="param-name">EPOCHS</span><span class="param-val">150</span></div>
+        <div class="param-item"><span class="param-name">PATIENCE</span><span class="param-val">25</span></div>
+        <div class="param-item"><span class="param-name">BATCH_SIZE</span><span class="param-val">16</span></div>
+        <div class="param-item"><span class="param-name">LEARNING_RATE</span><span class="param-val">1e-4</span></div>
+        <div class="param-item"><span class="param-name">FOCAL_ALPHA</span><span class="param-val">2.0</span></div>
+        <div class="param-item"><span class="param-name">FOCAL_BETA</span><span class="param-val">4.0</span></div>
+        <div class="param-item"><span class="param-name">LOSS_WEIGHT_HM</span><span class="param-val">2.0</span></div>
+        <div class="param-item"><span class="param-name">LOSS_WEIGHT_W</span><span class="param-val">1.0</span></div>
+        <div class="param-item"><span class="param-name">LOSS_WEIGHT_M</span><span class="param-val">1.0</span></div>
+        <div class="param-item"><span class="param-name">EVAL_CONF</span><span class="param-val">0.45</span></div>
+        <div class="param-item"><span class="param-name">EVAL_DIST</span><span class="param-val">60 samples</span></div>
+        <div class="param-item"><span class="param-name">EVAL_PROM</span><span class="param-val">0.10</span></div>
+      </div>
+
+      <h2>Optimizer & Scheduler</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">ml_component/train.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    optimizer, mode='max', patience=10, factor=0.5
+)
+# Early stopping on validation F1</code></pre>
+      </div>
+
+      <h2>Device Detection</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+model = AtrionNetHybrid(in_channels=12, hidden_dim=256).to(device)</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ LOSS FUNCTIONS ══════════════════════════ -->
+    <section class="doc-section" id="loss-functions">
+      <h1>Loss Functions</h1>
+      <p class="section-subtitle">Multi-task loss combining Focal Loss for detection, Smooth L1 for width regression, and weighted BCE + Dice for segmentation.</p>
+
+      <h2>Combined Instance Loss</h2>
+      <p>The total training loss is a weighted sum across all three output heads:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">diagram</span></div>
+        <pre><code>Total Loss = (2.0 × Heatmap Focal Loss)
+           + (1.0 × Width Smooth L1)
+           + (1.0 × Mask BCE + Dice)</code></pre>
+      </div>
+
+      <h2>Focal Loss (Heatmap Head)</h2>
+      <p>The focal loss is adapted for Gaussian heatmap targets. Pixels with target ≥ 0.8 are treated as positives (the core of the P-wave Gaussian), allowing gradient flow from the blurred edges:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/losses/segmentation_losses.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">def focal_loss(pred, target, alpha=2.0, beta=4.0):
+    pred = torch.clamp(pred, 1e-6, 1 - 1e-6)
+    pos_inds    = target.ge(0.8).float()   # Positives: heatmap >= 0.8
+    neg_inds    = target.lt(0.8).float()   # Negatives: everything else
+    neg_weights = torch.pow(1 - target, beta)   # Downweight near-positives
+
+    pos_loss = torch.log(pred) * torch.pow(1 - pred, alpha) * pos_inds
+    neg_loss = torch.log(1 - pred) * torch.pow(pred, alpha) * neg_weights * neg_inds
+
+    num_pos = pos_inds.float().sum()
+    if num_pos == 0:
+        return -neg_loss.mean()
+    return -(pos_loss.sum() + neg_loss.sum()) / (num_pos + 1e-6)</code></pre>
+      </div>
+
+      <h3>Width Loss (Smooth L1)</h3>
+      <p>Only computed at positive locations (<code>mask > 0.5</code>). Uses Smooth L1 (Huber loss) which is less sensitive to large width prediction errors than MSE, important when the model is learning at early epochs.</p>
+
+      <h3>Mask Loss (Weighted BCE + Dice)</h3>
+      <p>The mask target is a binary map. P-waves occupy ~5-10% of the signal — a severe class imbalance. A positive weight of 5.0 is applied in BCE to compensate. Dice loss further improves overlap-based performance:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">pos_weight = torch.tensor([5.0], device=pred['mask'].device)
+m_bce  = F.binary_cross_entropy_with_logits(
+    pred['mask'], target['mask'], pos_weight=pos_weight
+)
+m_loss = m_bce + dice_loss(torch.sigmoid(pred['mask']), target['mask'])</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ TRAINING LOOP ═══════════════════════════ -->
+    <section class="doc-section" id="training-loop">
+      <h1>Training Loop</h1>
+      <p class="section-subtitle">Standard PyTorch training with early stopping, checkpoint saving, and metric tracking.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Load LUDB + Create DataLoaders</h4>
+            <p>LUDBLoader reads all annotated records. AtrionInstanceDataset converts P-wave spans to heatmap/width/mask targets. Split into train/val DataLoaders with batch size 16.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Per-Epoch Training Pass</h4>
+            <p>For each batch: forward pass → compute combined loss → backward → gradient clip (max norm 1.0) → Adam step. Augmentations applied on-the-fly during training.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Validation + Metric Computation</h4>
+            <p>Run inference on validation set. Decode heatmap peaks with NMS → compute Precision, Recall, F1, mAP. Scheduler steps on validation F1.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Early Stopping + Checkpoint Save</h4>
+            <p>If validation F1 improves: save <code>atrion_hybrid_best.pth</code>. If no improvement for 25 epochs: stop training.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Plot Training Curves</h4>
+            <p>Loss, Precision, Recall, and F1 curves saved to <code>outputs/plots/</code> at the end of training.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">⏱️ Training Time</div>
+        <p>~2–4 hours on an RTX 3060 for 150 epochs on the full LUDB dataset (200 records). CPU training is possible but significantly slower (~15–20× longer).</p>
+      </div>
+    </section>
+
+    <!-- ══════ PREDICTOR ══════════════════════════════ -->
+    <section class="doc-section" id="predictor">
+      <h1>AVBlockPredictor</h1>
+      <p class="section-subtitle">The main inference class — wraps AtrionNetHybrid for end-to-end ECG analysis.</p>
+
+      <p><code>AVBlockPredictor</code> has two operating modes:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mode</th><th>Condition</th><th>P-wave Detection</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Model Mode</strong></td><td>Checkpoint file exists</td><td>AtrionNetHybrid heatmap output + NMS</td></tr>
+            <tr><td><strong>Fallback Mode</strong></td><td>No checkpoint</td><td>scipy <code>find_peaks</code> on bandpass-filtered signal</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Prediction Output Contract</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/inference/predictor.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">result = predictor.predict(signal)  # signal: np.ndarray (12, 5000)
+
+# result structure:
+{
+    'diagnosis': {
+        'av_block_type': str,     # "3rd Degree AV Block", etc.
+        'confidence':    float,   # Mean P-wave heatmap peak score
+        'severity':      str      # "Normal" | "Mild" | "Moderate" | "Severe"
+    },
+    'intervals': {
+        'pr':          List[int],   # PR intervals in samples
+        'rr':          List[int],   # RR intervals in samples
+        'p_qrs_ratio': float,
+    },
+    'waves': {
+        'P_associated':   List[Tuple[int,int]],   # (onset, offset) in samples
+        'P_dissociated':  List[Tuple[int,int]],
+        'QRS':            List[Tuple[int,int]],
+        'T':              List[Tuple[int,int]],
+    },
+    'xai': {
+        'explanation': str,
+        'heatmap':     List[float],   # 5000 values, 0.0–1.0
+    },
+    'clinical_metrics': { ... }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ SIGNAL PROCESSING ══════════════════════ -->
+    <section class="doc-section" id="signal-processing">
+      <h1>Signal Processing</h1>
+      <p class="section-subtitle">Bandpass filtering and wave detection pipeline used in inference.</p>
+
+      <h2>Preprocessing Filter</h2>
+      <p>A 2nd-order zero-phase Butterworth bandpass filter is applied to the signal before each wave detection step:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Wave</th><th>Filter Band</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>QRS (R-peak)</td><td>5–40 Hz</td><td>Emphasizes QRS high-frequency components, suppresses P/T</td></tr>
+            <tr><td>P-wave</td><td>0.5–15 Hz</td><td>Passes P-wave energy, removes QRS high-frequency content</td></tr>
+            <tr><td>T-wave</td><td>0.5–15 Hz</td><td>Same as P-wave band for T-wave detection window</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>QRS Detection</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">def _detect_qrs(signal, fs=500):
+    ecg    = _bandpass(signal, lo=5.0, hi=40.0)
+    ecg_sq = np.abs(ecg) ** 2                   # Energy envelope
+    min_dist = int(0.4 * fs)                     # 400ms refractory period
+    peaks, _ = find_peaks(ecg_sq,
+                           distance=min_dist,
+                           height=np.percentile(ecg_sq, 75))  # Top 25% energy
+    return peaks.tolist()</code></pre>
+      </div>
+
+      <h2>P-wave Detection (Fallback Mode)</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">def _detect_p_waves(signal, r_peaks, fs=500):
+    ecg = _bandpass(signal, lo=0.5, hi=15.0)
+    pr_window = int(0.30 * fs)   # Search 300ms before each R-peak
+    p_half_w  = int(0.05 * fs)   # ±50ms around P peak = 100ms span
+
+    for r in r_peaks:
+        start = max(0, r - pr_window)
+        end   = max(0, r - int(0.04 * fs))   # Don't overlap with QRS onset
+        region = ecg[start:end]
+        local_peaks, _ = find_peaks(region, prominence=0.02)
+        if local_peaks.size > 0:
+            best  = local_peaks[np.argmax(region[local_peaks])]
+            p_idx = start + best
+            spans.append((int(max(0, p_idx - p_half_w)),
+                          int(min(len(signal)-1, p_idx + p_half_w))))</code></pre>
+      </div>
+
+      <h2>Interval Computation</h2>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">def _compute_intervals(r_peaks, p_spans, fs=500):
+    rr = [r_peaks[i+1] - r_peaks[i] for i in range(len(r_peaks)-1)]
+    pr = []
+    for p_onset, p_offset in p_spans:
+        p_center   = (p_onset + p_offset) // 2
+        candidates = [r for r in r_peaks if r > p_center]   # Next R after P
+        if candidates:
+            pr.append(int(candidates[0] - p_center))
+    p_qrs_ratio = round(len(p_spans) / max(1, len(r_peaks)), 2)
+    return {"pr": pr, "rr": rr, "p_qrs_ratio": p_qrs_ratio}</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ CLASSIFICATION ═════════════════════════ -->
+    <section class="doc-section" id="classification">
+      <h1>AV Block Classification</h1>
+      <p class="section-subtitle">Rule-based classifier that maps measured intervals to a clinical diagnosis.</p>
+
+      <p>After the model detects P and QRS waves and measures intervals, a deterministic rule-based classifier maps the findings to a diagnosis. The primary discriminator is the <strong>P:QRS ratio</strong> — the ratio of detected P-waves to detected QRS complexes.</p>
+
+      <h2>Classification Rules</h2>
+
+      <div class="rule-block">
+        <div class="rule-header">
+          <span class="rule-condition">p_qrs_ratio &gt; 1.9</span>
+          <span class="rule-arrow">→</span>
+          <span class="rule-result">3rd Degree AV Block (Complete)</span>
+          <span class="badge badge-red" style="margin-left:auto">Severe</span>
+        </div>
+        <div class="rule-body">More than 1.9 P-waves per QRS indicates full atrial-ventricular dissociation. The atria and ventricles beat at entirely different rates.</div>
+      </div>
+
+      <div class="rule-block">
+        <div class="rule-header">
+          <span class="rule-condition">p_qrs_ratio &gt; 1.4</span>
+          <span class="rule-arrow">→</span>
+          <span class="rule-result">2nd Degree AV Block (Mobitz II)</span>
+          <span class="badge badge-red" style="margin-left:auto">Severe</span>
+        </div>
+        <div class="rule-body">Ratio between 1.4–1.9 indicates some P-waves are blocked (not followed by QRS), without progressive PR changes.</div>
+      </div>
+
+      <div class="rule-block">
+        <div class="rule-header">
+          <span class="rule-condition">p_qrs_ratio &gt; 1.15 AND PR progressively lengthens</span>
+          <span class="rule-arrow">→</span>
+          <span class="rule-result">2nd Degree Mobitz I (Wenckebach)</span>
+          <span class="badge badge-yellow" style="margin-left:auto">Moderate</span>
+        </div>
+        <div class="rule-body">Progressive PR prolongation detected: at least one consecutive PR interval increase of &gt;20ms. Classic Wenckebach pattern.</div>
+      </div>
+
+      <div class="rule-block">
+        <div class="rule-header">
+          <span class="rule-condition">avg_pr_ms &gt; 200</span>
+          <span class="rule-arrow">→</span>
+          <span class="rule-result">1st Degree AV Block</span>
+          <span class="badge badge-blue" style="margin-left:auto">Mild</span>
+        </div>
+        <div class="rule-body">All P-waves conduct (ratio ≈ 1.0) but PR interval consistently exceeds 200ms. Benign in most patients.</div>
+      </div>
+
+      <div class="rule-block">
+        <div class="rule-header">
+          <span class="rule-condition">Otherwise</span>
+          <span class="rule-arrow">→</span>
+          <span class="rule-result">Normal Sinus Rhythm</span>
+          <span class="badge badge-green" style="margin-left:auto">Normal</span>
+        </div>
+        <div class="rule-body">P:QRS ≈ 1.0 and PR 120–200ms. Normal conduction.</div>
+      </div>
+
+      <h2>Confidence Scoring</h2>
+      <p>The confidence score is derived from the model's own heatmap — not a softmax output. It takes the mean of the maximum heatmap value within each detected P-wave span:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">if heatmap is not None and p_spans:
+    peak_scores = []
+    for s, e in p_spans:
+        if s < e and e <= len(heatmap):
+            peak_scores.append(np.max(heatmap[s:e+1]))
+    if peak_scores:
+        confidence = float(np.mean(peak_scores))</code></pre>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">ℹ️ Why This Confidence Measure?</div>
+        <p>A confidence score derived from the model's own detection probability is more informative than a class-level softmax score. It directly reflects how certain the neural network was about the P-wave detections that drove the diagnosis — not just which class was selected at the output.</p>
+      </div>
+    </section>
+
+    <!-- ══════ XAI ════════════════════════════════════ -->
+    <section class="doc-section" id="xai">
+      <h1>Explainability (XAI)</h1>
+      <p class="section-subtitle">Built-in heatmap explainability and the clinical importance map.</p>
+
+      <h2>Primary XAI: Heatmap Head</h2>
+      <p>The heatmap output of the model is itself the primary XAI artifact. Unlike post-hoc methods (GradCAM applied after training), the heatmap head is trained end-to-end with focal loss against Gaussian P-wave targets. This means the model explicitly learns to produce high confidence values where P-waves are — the heatmap is interpretable by design.</p>
+
+      <h2>Clinical Importance Map</h2>
+      <p>Beyond the raw heatmap, a structured clinical importance map is computed in <code>_build_importance_map()</code>. It combines all detected wave types with physiologically motivated importance weights:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Wave Type</th><th>Base Importance</th><th>In AV Block</th></tr></thead>
+          <tbody>
+            <tr><td>QRS Complex</td><td>0.95</td><td>High — ventricular response marker</td></tr>
+            <tr><td>P-wave (in AV block)</td><td>0.95</td><td>Maximum — the discriminating feature</td></tr>
+            <tr><td>P-wave (normal)</td><td>0.80</td><td>Reduced — less clinically critical</td></tr>
+            <tr><td>T-wave</td><td>0.70</td><td>Low — repolarisation context</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Confidence-Adaptive Spreading</h3>
+      <p>The sigma of each Gaussian importance peak scales with confidence. High-confidence detections produce sharp, focused peaks; low-confidence detections produce wider, more uncertain regions:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">conf = diagnosis.get("confidence", 0.85)
+# High confidence → tight peaks; low → wide/dispersed
+sigma_scale = 1.0 + (1.0 - conf) * 2.0
+
+# For each wave span, compute Gaussian importance:
+center = (start + end) // 2
+sigma  = max(1, (wave_width / 2.0) * sigma_scale)
+peak   = importance_base * np.exp(-((x - center)**2) / (2 * sigma**2))</code></pre>
+      </div>
+
+      <h2>XAI Libraries Available</h2>
+      <p>The following libraries are installed for offline XAI analysis:</p>
+      <ul>
+        <li><strong>captum</strong> — PyTorch-native attribution methods (GradCAM, Integrated Gradients, SHAP wrappers)</li>
+        <li><strong>grad-cam</strong> — pytorch-grad-cam library for 1D signal GradCAM</li>
+        <li><strong>shap</strong> — SHAP value decomposition for global feature importance</li>
+      </ul>
+    </section>
+
+    <!-- ══════ API OVERVIEW ═══════════════════════════ -->
+    <section class="doc-section" id="api-overview">
+      <h1>API Overview</h1>
+      <p class="section-subtitle">FastAPI backend — four REST endpoints serving the ML inference pipeline.</p>
+
+      <div class="callout callout-info">
+        <div class="callout-title">🌐 Base URL</div>
+        <p>Development: <code>http://localhost:8000</code> — All endpoints accept <code>application/json</code> responses and <code>multipart/form-data</code> for file uploads.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Path</th><th>Auth</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-green">GET</span></td><td><code>/health</code></td><td>None</td><td>Server and model status</td></tr>
+            <tr><td><span class="badge badge-blue">POST</span></td><td><code>/preview</code></td><td>None</td><td>ECG preview — Lead II signal, no inference</td></tr>
+            <tr><td><span class="badge badge-blue">POST</span></td><td><code>/analyze</code></td><td>None</td><td>Full inference + PDF report generation</td></tr>
+            <tr><td><span class="badge badge-green">GET</span></td><td><code>/report/{id}</code></td><td>None</td><td>Download generated PDF report</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Input File Format</h2>
+      <p>All file endpoints accept <code>.npy</code> files only. The array must contain a 12-lead ECG in one of these shapes:</p>
+      <ul>
+        <li><code>(12, 5000)</code> — 12 leads × 5000 samples (preferred)</li>
+        <li><code>(5000, 12)</code> — transposed, automatically handled</li>
+        <li><code>(5000,)</code> — single lead, treated as Lead II</li>
+      </ul>
+    </section>
+
+    <!-- ══════ API — HEALTH ════════════════════════════ -->
+    <section class="doc-section" id="api-health">
+      <h1>GET /health</h1>
+      <p class="section-subtitle">Returns the server status and whether the model checkpoint is loaded.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-get">GET</span>
+          <span class="endpoint-path">/health</span>
+          <span class="endpoint-desc">No parameters</span>
+        </div>
+        <div class="endpoint-body">
+          <h4>Response 200</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn">Copy</button></div>
+            <pre><code class="language-json">{
+  "status": "online",
+  "model_loaded": true,
+  "device": "cuda"
+}</code></pre>
+          </div>
+          <h4>Notes</h4>
+          <p><code>model_loaded: false</code> means the checkpoint was not found at startup. The server is running in fallback (scipy) mode. <code>device</code> is <code>"cuda"</code> or <code>"cpu"</code> depending on GPU availability.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ API — PREVIEW ═══════════════════════════ -->
+    <section class="doc-section" id="api-preview">
+      <h1>POST /preview</h1>
+      <p class="section-subtitle">Returns a subsampled Lead II signal for fast frontend waveform rendering. No model inference.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-post">POST</span>
+          <span class="endpoint-path">/preview</span>
+          <span class="endpoint-desc">multipart/form-data</span>
+        </div>
+        <div class="endpoint-body">
+          <h4>Request Body</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><code>file</code></td><td>File (.npy)</td><td>Yes</td><td>12-lead ECG in NumPy format</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>Response 200</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn">Copy</button></div>
+            <pre><code class="language-json">{
+  "filename": "patient_001.npy",
+  "signal": [0.12, 0.08, 0.11, ...],
+  "sample_count": 5000,
+  "fs": 500
+}</code></pre>
+          </div>
+          <h4>Notes</h4>
+          <p>Signal is downsampled to 1000 points using <code>np.linspace</code> indices for smooth frontend plotting. The full 5000-sample signal is never sent in preview mode. Lead II is extracted from index 1 of the 12-lead array.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ API — ANALYZE ══════════════════════════ -->
+    <section class="doc-section" id="api-analyze">
+      <h1>POST /analyze</h1>
+      <p class="section-subtitle">Full inference pipeline — AtrionNet detection, classification, XAI heatmap, and PDF report generation.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-post">POST</span>
+          <span class="endpoint-path">/analyze</span>
+          <span class="endpoint-desc">multipart/form-data</span>
+        </div>
+        <div class="endpoint-body">
+          <h4>Request Body</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td><code>file</code></td><td>File (.npy)</td><td>Yes</td><td>12-lead ECG. Must have a loaded model checkpoint.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>Response 200</h4>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><button class="copy-btn">Copy</button></div>
+            <pre><code class="language-json">{
+  "diagnosis":   "3rd Degree AV Block",
+  "confidence":  0.872,
+  "severity":    "Severe",
+  "clinical_metrics": {
+    "mean_pr_ms":       248.4,
+    "heart_rate_bpm":   52.3
+  },
+  "intervals": {
+    "pr":     [124, 128, 131],
+    "rr":     [577, 580, 571],
+    "avg_pr": 127.8,
+    "hr":     52.3,
+    "p_qrs_ratio": 2.1
+  },
+  "waves": {
+    "p_associated":  [[45, 72], [623, 651]],
+    "p_dissociated": [[312, 338], [890, 916]],
+    "qrs":           [[84, 124], [660, 700]],
+    "t":             [[145, 198], [722, 778]]
+  },
+  "signal":    [0.12, 0.08, 0.11, ...],
+  "heatmap":   [0.01, 0.02, 0.91, 0.89, ...],
+  "report_id": "report_patient_001.pdf",
+  "explanation": "Detected 12 P-waves and 6 QRS complexes...",
+  "xai": {
+    "explanation": "...",
+    "heatmap": [...]
+  }
+}</code></pre>
+          </div>
+          <h4>Wave Coordinates</h4>
+          <p>All wave boundary coordinates (<code>p_associated</code>, <code>p_dissociated</code>, <code>qrs</code>, <code>t</code>) are in the <strong>frontend display space</strong> (0–999, mapped from original 0–4999 samples using the same subsampling indices as the signal array). This makes them directly usable for canvas overlay rendering without additional scaling.</p>
+          <h4>Error Responses</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Code</th><th>Condition</th></tr></thead>
+              <tbody>
+                <tr><td>400</td><td>File is not a .npy file</td></tr>
+                <tr><td>503</td><td>Model not loaded (no checkpoint found at startup)</td></tr>
+                <tr><td>500</td><td>Inference error — check server logs</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ API — REPORT ════════════════════════════ -->
+    <section class="doc-section" id="api-report">
+      <h1>GET /report/{report_id}</h1>
+      <p class="section-subtitle">Download the generated PDF clinical report by ID.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="method method-get">GET</span>
+          <span class="endpoint-path">/report/{report_id}</span>
+          <span class="endpoint-desc">Path parameter</span>
+        </div>
+        <div class="endpoint-body">
+          <h4>Path Parameters</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Parameter</th><th>Type</th><th>Example</th></tr></thead>
+              <tbody>
+                <tr><td><code>report_id</code></td><td>string</td><td><code>report_patient_001.pdf</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>Response</h4>
+          <p>Returns the PDF file as <code>application/pdf</code> with <code>Content-Disposition: attachment</code>. Reports are stored in <code>backend/reports/</code> and are named <code>report_{filename_stem}.pdf</code>.</p>
+          <h4>Error Responses</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Code</th><th>Condition</th></tr></thead>
+              <tbody>
+                <tr><td>404</td><td>Report ID not found in reports directory</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════ METRICS ════════════════════════════════ -->
+    <section class="doc-section" id="metrics">
+      <h1>Evaluation Metrics</h1>
+      <p class="section-subtitle">Instance-level detection metrics following AAMI/CSE clinical ECG evaluation standards.</p>
+
+      <p>Performance is measured at the <strong>P-wave instance level</strong>, not the ECG record level. Each predicted P-wave span is matched against the ground truth annotations from LUDB.</p>
+
+      <h2>True Positive Criterion</h2>
+      <p>A predicted P-wave is counted as a True Positive if its <strong>center</strong> falls within the annotated onset-to-offset span of a ground truth P-wave, with ±10 sample (20 ms) slack:</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">slack = 10  # 20ms slack at 500Hz (AAMI/CSE standard)
+if (t_start - slack) <= pred['center'] <= (t_end + slack):
+    # True Positive</code></pre>
+      </div>
+
+      <h2>Metric Definitions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Formula</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Precision</strong></td><td>TP / (TP + FP)</td><td>Of all predicted P-waves, what fraction are correct?</td></tr>
+            <tr><td><strong>Recall</strong></td><td>TP / (TP + FN)</td><td>Of all true P-waves, what fraction were found?</td></tr>
+            <tr><td><strong>F1-Score</strong></td><td>2 × P × R / (P + R)</td><td>Harmonic mean of Precision and Recall</td></tr>
+            <tr><td><strong>mAP</strong></td><td>Area under P-R curve</td><td>Mean Average Precision (VOC 2010+ all-point style)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>mAP Computation</h2>
+      <p>mAP is computed using VOC 2010+ style area-under-curve interpolation:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><span class="code-filename">src/engine/atrion_evaluator.py</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">def calculate_mAP(all_tp_lists, all_scores, total_gt):
+    flat_tp     = np.concatenate(all_tp_lists)
+    flat_scores = np.concatenate(all_scores)
+    order       = np.argsort(flat_scores)[::-1]
+    tp_sorted   = flat_tp[order]
+    tp_cumsum   = np.cumsum(tp_sorted)
+    fp_cumsum   = np.cumsum(1 - tp_sorted)
+    recalls     = tp_cumsum / total_gt
+    precisions  = tp_cumsum / (tp_cumsum + fp_cumsum)
+
+    # All-point interpolation (VOC 2010+)
+    m_rec = np.concatenate(([0.], recalls, [1.]))
+    m_pre = np.concatenate(([0.], precisions, [0.]))
+    for i in range(len(m_pre) - 2, -1, -1):
+        m_pre[i] = max(m_pre[i], m_pre[i + 1])
+    idx = np.where(m_rec[1:] != m_rec[:-1])[0]
+    ap  = float(np.sum((m_rec[idx+1] - m_rec[idx]) * m_pre[idx+1]))
+    return ap, recalls, precisions</code></pre>
+      </div>
+    </section>
+
+    <!-- ══════ NMS & THRESHOLDS ════════════════════════ -->
+    <section class="doc-section" id="nms">
+      <h1>1D NMS & Threshold Calibration</h1>
+      <p class="section-subtitle">Non-Maximum Suppression and the iterative process of calibrating detection thresholds.</p>
+
+      <h2>1D Non-Maximum Suppression</h2>
+      <p>After peak detection, overlapping predictions (IoU &gt; 0.5) are suppressed, keeping the highest-confidence detection. This prevents double-counting of P-waves that are detected by multiple peaks in the same region.</p>
+
+      <div class="code-block">
+        <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button></div>
+        <pre><code class="language-python">def _nms_1d(instances, iou_threshold=0.5):
+    instances = sorted(instances, key=lambda x: x['confidence'], reverse=True)
+    keep = []
+    suppressed = set()
+    for i, inst_a in enumerate(instances):
+        if i in suppressed:
+            continue
+        keep.append(inst_a)
+        for j, inst_b in enumerate(instances[i+1:], start=i+1):
+            if j in suppressed:
+                continue
+            iou = calculate_1d_iou(inst_a['span'], inst_b['span'])
+            if iou > iou_threshold:
+                suppressed.add(j)
+    return keep</code></pre>
+      </div>
+
+      <h2>Threshold Calibration History</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th class="version-row-bad">Version</th><th>Conf. Threshold</th><th>Min Distance</th><th>Precision</th><th>Recall</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr class="version-row-bad"><td>v4.0</td><td>0.20</td><td>20 samples</td><td>0.04</td><td>High</td><td>5167 false positives — T-waves misdetected as P-waves</td></tr>
+            <tr class="version-row-bad"><td>v4.1</td><td>0.50</td><td>100 samples</td><td>High</td><td>0.31</td><td>152 missed P-waves — threshold too strict for weak dissociated P-waves</td></tr>
+            <tr><td>v4.2</td><td>0.35</td><td>60 samples</td><td>—</td><td>—</td><td>Balanced target F1 ≥ 0.70</td></tr>
+            <tr class="version-row-final"><td>Final</td><td>0.45</td><td>60 samples</td><td>—</td><td>—</td><td>Tuned to σ=6 Gaussian targets. Excludes T-waves (0.1–0.2) while capturing weak P-waves</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Physiological Justification</h2>
+      <ul>
+        <li><strong>conf=0.45</strong>: P-waves in AV block can be partially buried in noise; 0.45 captures weak but genuine dissociated P-waves while excluding T-waves and noise (typically score 0.1–0.25)</li>
+        <li><strong>distance=60 samples</strong>: 120 ms minimum inter-P-wave gap. The fastest pathological atrial rate in AV block is ~180 bpm = 333 ms cycle, so 120 ms is a safe physiological floor</li>
+        <li><strong>prominence=0.10</strong>: Peak must rise at least 10% above local surrounding — filters flat noise plateaux</li>
+      </ul>
+    </section>
+
+    <!-- ══════ FRONTEND ════════════════════════════════ -->
+    <section class="doc-section" id="frontend">
+      <h1>Frontend Dashboard</h1>
+      <p class="section-subtitle">React + Vite single-page application with four pages and an interactive ECG analysis interface.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Page</th><th>Route</th><th>Component</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Home</td><td><code>/</code></td><td>HomePage.jsx</td><td>Landing page with project overview and navigation cards</td></tr>
+            <tr><td>Analysis</td><td><code>/analysis</code></td><td>AnalysisPage.jsx</td><td>Main upload, preview, analysis, and results interface</td></tr>
+            <tr><td>Instructions</td><td><code>/instructions</code></td><td>InstructionsPage.jsx</td><td>Step-by-step usage guide for clinicians</td></tr>
+            <tr><td>About</td><td><code>/about</code></td><td>AboutPage.jsx</td><td>Project background, developer context, research motivation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Analysis Page Flow</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>File Upload Zone</h4>
+            <p>Drag-and-drop or click-to-upload area. Accepts <code>.npy</code> only. Shows file name and size on selection.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Preview Panel</h4>
+            <p>On upload, calls <code>POST /preview</code> and renders the Lead II waveform using canvas/SVG. No AI inference at this stage — instant feedback.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Run Analysis</h4>
+            <p>Triggers <code>POST /analyze</code>. Shows a loading spinner during inference (&lt;2s on GPU). Displays a progress indicator.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>Results Display</h4>
+            <p>Shows diagnosis badge, severity level, confidence bar, clinical metrics table (PR ms, HR bpm), and the annotated waveform with P/QRS/T boundaries overlaid.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h4>Download Report</h4>
+            <p>Fetches <code>GET /report/{id}</code> and triggers browser download of the clinical PDF.</p>
+          </div>
+        </div>
+      </div>
+
+      <h2>Frontend Project Structure</h2>
+      <div class="file-tree">
+        <span class="tree-dir">frontend/src/</span><br>
+        &nbsp;&nbsp;├── <span class="tree-jsx">App.jsx</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Router setup</span><br>
+        &nbsp;&nbsp;├── <span class="tree-file">index.css</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Global design system (40KB)</span><br>
+        &nbsp;&nbsp;├── pages/<br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-jsx">HomePage.jsx</span><br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-jsx">AnalysisPage.jsx</span>&nbsp;&nbsp;<span class="tree-comment"># Main interface (39KB)</span><br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-jsx">InstructionsPage.jsx</span><br>
+        &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="tree-jsx">AboutPage.jsx</span><br>
+        &nbsp;&nbsp;├── components/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Reusable UI components</span><br>
+        &nbsp;&nbsp;├── services/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># API call functions</span><br>
+        &nbsp;&nbsp;├── hooks/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Custom React hooks</span><br>
+        &nbsp;&nbsp;├── context/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># React context providers</span><br>
+        &nbsp;&nbsp;└── utils/&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Utility functions</span>
+      </div>
+    </section>
+
+    <!-- ══════ PROJECT STRUCTURE ══════════════════════ -->
+    <section class="doc-section" id="project-structure">
+      <h1>Project Structure</h1>
+      <p class="section-subtitle">Complete file and directory layout of the AtrionNet implementation.</p>
+
+      <div class="file-tree">
+        <span class="tree-dir">AtrionNet_Implementation/</span><br>
+        ├── <span class="tree-dir">ml_component/</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">src/</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">modeling/</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="tree-py">atrion_net.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># AtrionNetHybrid + Baseline</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">data_pipeline/</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-py">ludb_loader.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># LUDB WFDB reader</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-py">instance_dataset.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># PyTorch Dataset class</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="tree-py">augmentations.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># ECG noise augmentations</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">inference/</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="tree-py">predictor.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># AVBlockPredictor (854 lines)</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">engine/</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="tree-py">atrion_evaluator.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Metrics: F1, mAP, NMS</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">losses/</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="tree-py">segmentation_losses.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Focal + Dice + Combined</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="tree-dir">utils/</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">outputs/</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">weights/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># atrion_hybrid_best.pth</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">checkpoints/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Intermediate saves</span><br>
+        │&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="tree-dir">plots/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Training curves</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">notebooks/</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-py">train.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Training entry point</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-py">download_data.py</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-py">generate_test_case.py</span><br>
+        │&nbsp;&nbsp;&nbsp;└── <span class="tree-file">requirements.txt</span><br>
+        ├── <span class="tree-dir">backend/</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-py">main.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># FastAPI application</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-py">audit_system.py</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># System health check</span><br>
+        │&nbsp;&nbsp;&nbsp;├── <span class="tree-dir">uploads/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Temp uploaded files</span><br>
+        │&nbsp;&nbsp;&nbsp;└── <span class="tree-dir">reports/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Generated PDFs</span><br>
+        ├── <span class="tree-dir">frontend/</span><br>
+        │&nbsp;&nbsp;&nbsp;└── src/ ...<br>
+        ├── <span class="tree-dir">docs/</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># This documentation site</span><br>
+        ├── <span class="tree-dir">tests/</span><br>
+        ├── <span class="tree-md">README.md</span><br>
+        ├── <span class="tree-file">ludb_test_case_104.npy</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tree-comment"># Sample ECG test file</span><br>
+        └── <span class="tree-file">test_case_34.npy</span>
+      </div>
+    </section>
+
+    <!-- ══════ TECH STACK ══════════════════════════════ -->
+    <section class="doc-section" id="tech-stack">
+      <h1>Technology Stack</h1>
+      <p class="section-subtitle">All libraries and frameworks used in AtrionNet.</p>
+
+      <h2>Machine Learning</h2>
+      <div class="stack-grid">
+        <div class="stack-item"><span class="stack-icon">🔥</span>PyTorch ≥2.0</div>
+        <div class="stack-item"><span class="stack-icon">📊</span>NumPy ≥1.24</div>
+        <div class="stack-item"><span class="stack-icon">🧮</span>SciPy ≥1.10</div>
+        <div class="stack-item"><span class="stack-icon">❤️</span>wfdb ≥4.1</div>
+        <div class="stack-item"><span class="stack-icon">🧠</span>neurokit2 ≥0.2.7</div>
+        <div class="stack-item"><span class="stack-icon">📈</span>scikit-learn ≥1.3</div>
+        <div class="stack-item"><span class="stack-icon">💡</span>captum ≥0.6</div>
+        <div class="stack-item"><span class="stack-icon">🎯</span>grad-cam ≥1.4</div>
+        <div class="stack-item"><span class="stack-icon">📊</span>shap ≥0.42</div>
+      </div>
+
+      <h2>Backend & API</h2>
+      <div class="stack-grid">
+        <div class="stack-item"><span class="stack-icon">⚡</span>FastAPI ≥0.100</div>
+        <div class="stack-item"><span class="stack-icon">🦄</span>uvicorn ≥0.22</div>
+        <div class="stack-item"><span class="stack-icon">📄</span>ReportLab ≥4.0</div>
+        <div class="stack-item"><span class="stack-icon">🖼️</span>Pillow ≥10.0</div>
+      </div>
+
+      <h2>Frontend</h2>
+      <div class="stack-grid">
+        <div class="stack-item"><span class="stack-icon">⚛️</span>React</div>
+        <div class="stack-item"><span class="stack-icon">⚡</span>Vite</div>
+        <div class="stack-item"><span class="stack-icon">📦</span>Node.js 18+</div>
+      </div>
+
+      <h2>Visualisation & Training</h2>
+      <div class="stack-grid">
+        <div class="stack-item"><span class="stack-icon">📉</span>Matplotlib ≥3.7</div>
+        <div class="stack-item"><span class="stack-icon">🎨</span>Seaborn ≥0.12</div>
+        <div class="stack-item"><span class="stack-icon">📋</span>TensorBoard ≥2.13</div>
+        <div class="stack-item"><span class="stack-icon">🔄</span>tqdm ≥4.65</div>
+        <div class="stack-item"><span class="stack-icon">📓</span>Jupyter ≥1.0</div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">📎 License</div>
+        <p>This project is for academic and research purposes. Model code is MIT licensed. LUDB dataset usage is subject to <a href="https://physionet.org/about/licenses/physionet-restricted-health-data-license-150/" target="_blank">PhysioNet's Restricted Health Data License</a>.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
