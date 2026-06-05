@@ -933,8 +933,8 @@ The model achieves a **97.41% P-wave detection F1-score** and **99.1% sensitivit
 
 Developed as part of a final-year clinical AI research project:
 
-* **[Dumindu Induwara Gamage]** - *Clinical AI Lead & Deep Learning Engineer* - `[developer-email@example.com]`
-* **[Ms.Kalhari Walawage]** - *Project Advisor & Academic Director* - `[supervisor-email@example.com]`
+* **[Dumindu Induwara Gamage]** - *FPerson who coducted and developed this research project* - `[developer-dumindu.20221168@iit.ac.lk]`
+* **[Ms.Kalhari Walawage]** - *Project Advisor & Project Super* - `[supervisor-kalhari.w@iit.ac.lk]`
 
 ---
 
