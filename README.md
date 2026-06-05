@@ -684,33 +684,29 @@ AtrionNet follows a clear, step-by-step diagnostic workflow:
 Clearly marked placeholders for interface screenshots:
 
 ### 1. Home Page
-*Placeholder for Home Page Screenshot:*
-`![Home Page Screenshot](file:///C:/Users/ASUS/.gemini/antigravity-ide/brain/9be393f4-f5ed-4901-b8b3-b231adc21503/home_page_screenshot.png)`
+
 *Description: The main landing page, containing system statistics, technology highlights, and the drag-and-drop file upload zone.*
 
 ### 2. Clinical Dashboard & Signal Input
-*Placeholder for Dashboard Input Screenshot:*
-`![Dashboard Input Screenshot](file:///C:/Users/ASUS/.gemini/antigravity-ide/brain/9be393f4-f5ed-4901-b8b3-b231adc21503/dashboard_input_screenshot.png)`
+
 *Description: The active diagnostic dashboard, showing an uploaded study, the raw signal preview, and the button to start the analysis.*
 
 ### 3. Prediction & Segment Highlight Overlays
-*Placeholder for Prediction Screen Screenshot:*
-`![Prediction Screen Screenshot](file:///C:/Users/ASUS/.gemini/antigravity-ide/brain/9be393f4-f5ed-4901-b8b3-b231adc21503/prediction_screen_screenshot.png)`
+
+
 *Description: The interactive Plotly plot showing color-coded highlights for P-waves, QRS complexes, and T-waves.*
 
 ### 4. Attention Heatmap & XAI Rationale Panel
-*Placeholder for Results Screen Screenshot:*
-`![Results Screen Screenshot](file:///C:/Users/ASUS/.gemini/antigravity-ide/brain/9be393f4-f5ed-4901-b8b3-b231adc21503/results_screen_screenshot.png)`
+
+
 *Description: The explainable AI dashboard, displaying the attention heatmap background and the clinical rationale text panel.*
 
 ### 5. Automated Reports View
-*Placeholder for Reports Screen Screenshot:*
-`![Reports Screen Screenshot](file:///C:/Users/ASUS/.gemini/antigravity-ide/brain/9be393f4-f5ed-4901-b8b3-b231adc21503/reports_screen_screenshot.png)`
+
 *Description: The PDF generation interface, showing the report download button and signature fields.*
 
 ### 6. Technical Instructions Page
-*Placeholder for Instructions Page Screenshot:*
-`![Instructions Page Screenshot](file:///C:/Users/ASUS/.gemini/antigravity-ide/brain/9be393f4-f5ed-4901-b8b3-b231adc21503/instructions_page_screenshot.png)`
+
 *Description: The reference guide explaining clinical criteria, severity classifications, and model evaluation parameters.*
 
 ---
