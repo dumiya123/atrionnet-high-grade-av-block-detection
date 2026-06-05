@@ -44,7 +44,7 @@ ml_component/tensorboard/
 ml_component/data/raw/ludb/RECORDS
 *.pth
 *.h5
-*.npy
+# *.npy
 *.dat
 *.hea
 *.i
