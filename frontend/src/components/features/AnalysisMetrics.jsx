@@ -7,31 +7,37 @@ import Card from '../ui/Card';
  * Component to display high-level temporal metrics from ECG analysis.
  */
 const AnalysisMetrics = ({ result }) => {
+    const formatNumeric = (value, decimals = 1) => {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return '--';
+        return decimals >= 0 ? num.toFixed(decimals) : String(num);
+    };
+
     const metrics = [
         {
             label: 'Avg PR Interval',
-            value: `${result.intervals.avg_pr?.toFixed(1) || '--'} ms`,
+            value: `${formatNumeric(result?.intervals?.avg_pr, 1)} ms`,
             icon: Clock,
             color: 'text-blue-600',
             bg: 'bg-blue-50'
         },
         {
             label: 'Heart Rate',
-            value: `${result.intervals.hr?.toFixed(0) || '--'} bpm`,
+            value: `${formatNumeric(result?.intervals?.hr, 0)} bpm`,
             icon: Activity,
             color: 'text-indigo-600',
             bg: 'bg-indigo-50'
         },
         {
             label: 'P : QRS Ratio',
-            value: result.intervals.p_qrs_ratio.toFixed(2),
+            value: formatNumeric(result?.intervals?.p_qrs_ratio, 2),
             icon: Hash,
             color: 'text-emerald-600',
             bg: 'bg-emerald-50'
         },
         {
             label: 'Detections',
-            value: `${result.intervals.pr.length} beats`,
+            value: `${result?.intervals?.pr?.length ?? '--'} beats`,
             icon: Layers,
             color: 'text-violet-600',
             bg: 'bg-violet-50'

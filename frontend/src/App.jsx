@@ -3,7 +3,7 @@ import Navbar from './components/layout/Navbar';
 import './App.css';
 
 // Lazy load pages for better performance
-const HomePage = lazy(() => import('./pages/HomePage'));
+import HomePage from './pages/HomePage';
 const InstructionsPage = lazy(() => import('./pages/InstructionsPage'));
 const AnalysisPage = lazy(() => import('./pages/AnalysisPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));

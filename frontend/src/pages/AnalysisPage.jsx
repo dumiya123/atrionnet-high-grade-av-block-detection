@@ -7,6 +7,7 @@ import {
 import { useECGAnalysis } from '../hooks/useECGAnalysis';
 import { getReportUrl } from '../services/api';
 import ECGViewer from '../components/features/ECGViewer';
+import cn from 'clsx';
 
 /* ─────────────────────────────────────────────────────────────
    ANALYSIS PAGE — 3-column clinical dashboard
@@ -35,6 +36,103 @@ const AnalysisPage = () => {
     };
 
     const reportUrl = result ? getReportUrl(result.report_id) : '#';
+
+    const parseMetric = (value) => {
+        const cleaned = String(value ?? '').replace(/<[^>]*>/g, '').trim();
+        const parsed = Number(cleaned);
+        return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const formatWithSuffix = (value, suffix) => {
+        const parsed = parseMetric(value);
+        return parsed !== null ? `${parsed}${suffix}` : '--';
+    };
+
+    const xaiModal = result && isXaiModalOpen ? (
+        <div className="modal-overlay" onClick={() => setIsXaiModalOpen(false)}>
+            <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <div className="modal-title-wrap">
+                            <div className="modal-icon-box">
+                                <Brain className="modal-icon" />
+                            </div>
+                            <div>
+                                <h2 className="modal-title">Clinical XAI Interpretive Inspector</h2>
+                                <p className="modal-subtitle">High-resolution attention mapping for {result.diagnosis}</p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setIsXaiModalOpen(false)}
+                            className="modal-close-btn"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                    <div className="modal-body">
+                        <div className="modal-section">
+                            <div className="modal-section-header">
+                                <Activity className="modal-section-icon" />
+                                <span className="modal-section-label">Segmented Morphology View</span>
+                            </div>
+                            <div className="modal-viz-box" style={{ height: '320px' }}>
+                                <ECGViewer
+                                    signal={result.signal}
+                                    fs={500}
+                                    waves={result.waves}
+                                    showSegmentation={true}
+                                    height={320}
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-section">
+                            <div className="modal-section-header">
+                                <Zap className="modal-section-icon--warning" />
+                                <span className="modal-section-label">Continuous Explainability Map (Heatmap)</span>
+                            </div>
+                            <div className="modal-viz-box" style={{ height: '220px' }}>
+                                <XAIMap
+                                    signal={result.signal}
+                                    heatmap={result.heatmap}
+                                    waves={result.waves}
+                                    diagnosis={result}
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-logic-grid">
+                            <div className="modal-logic-box">
+                                <h3 className="modal-logic-title">Lead-II Diagnostic Rationale</h3>
+                                <div className="modal-logic-content">
+                                    {(result?.explanation ?? '').split('\n').filter(l => l.trim()).map((line, i) => (
+                                        <p key={i} className={cn(
+                                            "modal-logic-line",
+                                            (line.startsWith('DIAGNOSIS') || line.startsWith('UNDERSTANDING') || line.startsWith('TECHNICAL')) && "modal-logic-line--heading"
+                                        )}>
+                                            {line}
+                                        </p>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="modal-logic-aside">
+                                <div className="modal-info-chip modal-info-chip--blue">
+                                    <span className="modal-info-chip-label">Detection Focus</span>
+                                    <span className="modal-info-chip-value">{result.xai?.focus_label || 'Multi-wave morphology'}</span>
+                                </div>
+                                <div className="modal-info-chip modal-info-chip--green">
+                                    <span className="modal-info-chip-label">Stability Audit</span>
+                                    <span className="modal-info-chip-value">Clinically Consistent</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="modal-footer">
+                        <span className="modal-footer-text">AtrionNet Clinical Interpretation Engine v2.4 (XAI Enabled)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    ) : null;
 
     return (
         <div className="page-shell">
@@ -118,10 +216,10 @@ const AnalysisPage = () => {
 
                         {result && result.clinical_metrics && (
                             <SidebarSection title="ECG Measurements" icon={FileText}>
-                                <InfoField label="Heart Rate" value={`${result.clinical_metrics.heart_rate_bpm || 0} BPM`} />
-                                <InfoField label="PR Interval" value={`${result.clinical_metrics.mean_pr_ms || 0} ms`} />
-                                <InfoField label="Assoc. P-waves" value={result.clinical_metrics.n_p_assoc || 0} />
-                                <InfoField label="Dissoc. P-waves" value={result.clinical_metrics.n_p_dissoc || 0} highlight />
+                                <InfoField label="Heart Rate" value={formatWithSuffix(result.clinical_metrics.heart_rate_bpm, ' BPM')} />
+                                <InfoField label="PR Interval" value={formatWithSuffix(result.clinical_metrics.mean_pr_ms, ' ms')} />
+                                <InfoField label="Assoc. P-waves" value={parseMetric(result.clinical_metrics.n_p_assoc) ?? 0} />
+                                <InfoField label="Dissoc. P-waves" value={parseMetric(result.clinical_metrics.n_p_dissoc) ?? 0} highlight />
                             </SidebarSection>
                         )}
                     </aside>
@@ -205,6 +303,7 @@ const AnalysisPage = () => {
                                 <div className="flex items-center gap-3">
                                     {result && (
                                         <button
+                                            type="button"
                                             onClick={() => setIsXaiModalOpen(true)}
                                             className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md border border-blue-200 transition-colors"
                                         >
@@ -332,102 +431,7 @@ const AnalysisPage = () => {
                 </div>
             </div>
 
-            {/* Clinical XAI Inspector Modal */}
-            {isXaiModalOpen && result && (
-                <div className="modal-overlay">
-                    <div className="modal-container">
-                        <div className="modal-content">
-                            {/* Header */}
-                            <div className="modal-header">
-                                <div className="modal-title-wrap">
-                                    <div className="modal-icon-box">
-                                        <Brain className="modal-icon" />
-                                    </div>
-                                    <div>
-                                        <h2 className="modal-title">Clinical XAI Interpretive Inspector</h2>
-                                        <p className="modal-subtitle">High-resolution attention mapping for {result.diagnosis}</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setIsXaiModalOpen(false)}
-                                    className="modal-close-btn"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            {/* Content Area */}
-                            <div className="modal-body">
-
-                                {/* Section 1: Segmented Waveform */}
-                                <div className="modal-section">
-                                    <div className="modal-section-header">
-                                        <Activity className="modal-section-icon" />
-                                        <span className="modal-section-label">Segmented Morphology View</span>
-                                    </div>
-                                    <div className="modal-viz-box" style={{ height: '320px' }}>
-                                        <ECGViewer
-                                            signal={result.signal}
-                                            fs={500}
-                                            waves={result.waves}
-                                            showSegmentation={true}
-                                            height={320}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Section 2: Attention Heatmap */}
-                                <div className="modal-section">
-                                    <div className="modal-section-header">
-                                        <Zap className="modal-section-icon--warning" />
-                                        <span className="modal-section-label">Continuous Explainability Map (Heatmap)</span>
-                                    </div>
-                                    <div className="modal-viz-box" style={{ height: '220px' }}>
-                                        <XAIMap
-                                            signal={result.signal}
-                                            heatmap={result.heatmap}
-                                            waves={result.waves}
-                                            diagnosis={result}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Section 3: AI Clinical Logic */}
-                                <div className="modal-logic-grid">
-                                    <div className="modal-logic-box">
-                                        <h3 className="modal-logic-title">Lead-II Diagnostic Rationale</h3>
-                                        <div className="modal-logic-content">
-                                            {result.explanation.split('\n').filter(l => l.trim()).map((line, i) => (
-                                                <p key={i} className={cn(
-                                                    "modal-logic-line",
-                                                    (line.startsWith('DIAGNOSIS') || line.startsWith('UNDERSTANDING') || line.startsWith('TECHNICAL')) && "modal-logic-line--heading"
-                                                )}>
-                                                    {line}
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="modal-logic-aside">
-                                        <div className="modal-info-chip modal-info-chip--blue">
-                                            <span className="modal-info-chip-label">Detection Focus</span>
-                                            <span className="modal-info-chip-value">{result.xai?.focus_label || 'Multi-wave morphology'}</span>
-                                        </div>
-                                        <div className="modal-info-chip modal-info-chip--green">
-                                            <span className="modal-info-chip-label">Stability Audit</span>
-                                            <span className="modal-info-chip-value">Clinically Consistent</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="modal-footer">
-                                <span className="modal-footer-text">AtrionNet Clinical Interpretation Engine v2.4 (XAI Enabled)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {xaiModal}
 
         </div>
     );
@@ -528,97 +532,152 @@ const XAIMap = ({ signal, heatmap, waves, diagnosis }) => {
     React.useEffect(() => {
         const canvas = canvasRef.current;
         const container = containerRef.current;
-        if (!canvas || !container || !signal || !heatmap) return;
+        if (!canvas || !container || !signal) return;
 
         const render = () => {
             const ctx = canvas.getContext('2d');
             const dpr = window.devicePixelRatio || 1;
             const rect = container.getBoundingClientRect();
 
-            // Critical fix: ensure non-zero dimensions
             if (rect.width === 0 || rect.height === 0) return;
 
             canvas.width = rect.width * dpr;
             canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
             const W = rect.width;
             const H = rect.height;
             const PAD = 20;
             const SIG_H = H - PAD * 2;
-
             const points = signal.length;
-
-            // Robust min/max for large arrays
-            let sigMin = Infinity, sigMax = -Infinity;
-            for (let i = 0; i < points; i++) {
-                if (signal[i] < sigMin) sigMin = signal[i];
-                if (signal[i] > sigMax) sigMax = signal[i];
-            }
+            const signalValues = signal.map((v) => Number(v) || 0);
+            let sigMin = Math.min(...signalValues);
+            let sigMax = Math.max(...signalValues);
             const sigRange = sigMax - sigMin || 1;
+            const normalizedHeatmap = Array.isArray(heatmap) && heatmap.length > 0
+                ? heatmap.slice(0, points).concat(Array(Math.max(0, points - heatmap.length)).fill(0.4))
+                : Array(points).fill(0.4);
 
             const getCol = (v) => {
+                v = Number(v);
+                if (!Number.isFinite(v)) v = 0;
                 v = Math.max(0, Math.min(1, v));
                 let hue;
                 if (v < 0.5) hue = 220 - (v * 2) * (220 - 60);
                 else hue = 60 - ((v - 0.5) * 2) * 60;
-                return `hsl(${hue}, 85%, ${45 + v * 10}%)`;
+                return `hsl(${hue}, 90%, ${42 + v * 14}%)`;
             };
 
             ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, W, H);
 
-            // 1. Grid
-            ctx.strokeStyle = '#fed7d7';
+            // Grid
+            ctx.strokeStyle = '#e2e8f0';
             ctx.lineWidth = 0.5;
-            for (let x = 0; x <= W; x += 10) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-            for (let y = 0; y <= H; y += 10) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-            ctx.strokeStyle = '#feb2b2';
+            for (let x = 0; x <= W; x += 10) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+            }
+            for (let y = 0; y <= H; y += 10) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+            }
+            ctx.strokeStyle = '#cbd5e1';
             ctx.lineWidth = 1;
-            for (let x = 0; x <= W; x += 50) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-            for (let y = 0; y <= H; y += 50) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+            for (let x = 0; x <= W; x += 50) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+            }
+            for (let y = 0; y <= H; y += 50) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+            }
 
-            // 2. Signal
-            ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 2.5;
+            // Heatmap band overlay
+            ctx.save();
+            ctx.globalAlpha = 0.35;
+            const bandHeight = Math.max(16, H * 0.16);
+            for (let i = 0; i < points; i++) {
+                const x = (i / (points - 1)) * W;
+                const segmentW = Math.max(W / points, 1);
+                ctx.fillStyle = getCol(normalizedHeatmap[i]);
+                ctx.fillRect(x, H - bandHeight, segmentW + 1, bandHeight);
+            }
+            ctx.restore();
+
+            // Baseline waveform for better contrast
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#475569';
+            ctx.beginPath();
+            for (let i = 0; i < points; i++) {
+                const x = (i / (points - 1)) * W;
+                const y = PAD + SIG_H - ((signalValues[i] - sigMin) / sigRange) * SIG_H;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Colorized ECG signal overlay
+            ctx.lineWidth = 2.4;
             for (let i = 0; i < points - 1; i++) {
                 const x1 = (i / (points - 1)) * W;
-                const y1 = PAD + SIG_H - ((signal[i] - sigMin) / sigRange) * SIG_H;
+                const y1 = PAD + SIG_H - ((signalValues[i] - sigMin) / sigRange) * SIG_H;
                 const x2 = ((i + 1) / (points - 1)) * W;
-                const y2 = PAD + SIG_H - ((signal[i + 1] - sigMin) / sigRange) * SIG_H;
+                const y2 = PAD + SIG_H - ((signalValues[i + 1] - sigMin) / sigRange) * SIG_H;
 
                 const grad = ctx.createLinearGradient(x1, y1, x2, y2);
-                grad.addColorStop(0, getCol(heatmap[i]));
-                grad.addColorStop(1, getCol(heatmap[i + 1]));
+                grad.addColorStop(0, getCol(normalizedHeatmap[i]));
+                grad.addColorStop(1, getCol(normalizedHeatmap[i + 1]));
 
                 ctx.beginPath(); ctx.strokeStyle = grad; ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
             }
 
-            // 3. Mark Waves & PR Intervals
+            // Accent marker path on high-attention regions
+            ctx.save();
+            ctx.lineWidth = 1.8;
+            ctx.globalCompositeOperation = 'screen';
+            ctx.globalAlpha = 0.85;
+            for (let i = 1; i < points - 1; i++) {
+                const x = (i / (points - 1)) * W;
+                const y = PAD + SIG_H - ((signalValues[i] - sigMin) / sigRange) * SIG_H;
+                const intensity = normalizedHeatmap[i];
+                if (intensity > 0.78) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = getCol(intensity);
+                    ctx.moveTo(x, y - 5);
+                    ctx.lineTo(x, y + 5);
+                    ctx.stroke();
+                }
+            }
+            ctx.restore();
+
+            // Mark waves and PR intervals
             if (waves) {
                 ctx.font = 'bold 9px Inter, system-ui, sans-serif';
                 ctx.textAlign = 'center';
 
-                // Helpers for waves
                 const drawLabels = (spans, label, color) => {
                     if (!spans) return;
                     spans.forEach(([s, e]) => {
                         const x = ((s + e) / 2 / (points - 1)) * W;
-                        const y = PAD - 5;
-                        ctx.fillStyle = color; ctx.fillText(label, x, y);
-                        ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 1;
-                        ctx.moveTo(x, y + 2); ctx.lineTo(x, y + 6); ctx.stroke();
+                        const y = PAD - 6;
+                        ctx.fillStyle = color;
+                        ctx.fillText(label, x, y);
+                        ctx.beginPath();
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(x, y + 4);
+                        ctx.lineTo(x, y + 8);
+                        ctx.stroke();
                     });
                 };
 
-                // Draw PR Interval (Specific Focus for AV Block)
                 if (waves.p_associated && waves.qrs) {
-                    waves.p_associated.forEach(([ps, pe], i) => {
+                    waves.p_associated.forEach(([ps, pe]) => {
                         const nextQrs = waves.qrs.find(([qs]) => qs > pe);
                         if (nextQrs) {
                             const [qs] = nextQrs;
                             const x1 = (pe / (points - 1)) * W;
                             const x2 = (qs / (points - 1)) * W;
-
-                            // Draw bracket/interval line
                             ctx.beginPath();
                             ctx.strokeStyle = '#64748b';
                             ctx.setLineDash([2, 2]);
@@ -626,9 +685,8 @@ const XAIMap = ({ signal, heatmap, waves, diagnosis }) => {
                             ctx.lineTo(x2, PAD + SIG_H + 10);
                             ctx.stroke();
                             ctx.setLineDash([]);
-
                             ctx.fillStyle = '#64748b';
-                            ctx.fillText('PR', (x1 + x2) / 2, PAD + SIG_H + 20);
+                            ctx.fillText('PR', (x1 + x2) / 2, PAD + SIG_H + 22);
                         }
                     });
                 }
@@ -640,10 +698,7 @@ const XAIMap = ({ signal, heatmap, waves, diagnosis }) => {
             }
         };
 
-        // Use requestAnimationFrame to ensure layout is ready
         const handle = requestAnimationFrame(render);
-
-        // Also listen for resize
         const observer = new ResizeObserver(render);
         observer.observe(container);
 
@@ -660,17 +715,25 @@ const XAIMap = ({ signal, heatmap, waves, diagnosis }) => {
             <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
 
             {/* Standardized Continuous Color Scale Legend */}
-            <div className="absolute bottom-2 left-2 flex flex-col gap-1.5 bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-md border border-slate-200 min-w-[220px]">
+            <div className="absolute bottom-2 left-2 flex flex-col gap-2 bg-white/96 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-slate-200 min-w-[240px]">
+                <div className="text-[9px] font-semibold text-slate-600 uppercase tracking-[0.18em]">
+                    Uploaded signal attention map (same waveform shown)
+                </div>
                 <div className="flex justify-between text-[8px] font-black text-slate-500 uppercase tracking-tighter mb-1">
-                    <span>Low Importance</span>
-                    <span>High Importance</span>
+                    <span>0.0</span>
+                    <span>0.5</span>
+                    <span>1.0</span>
                 </div>
                 <div style={{
-                    height: 8,
+                    height: 10,
                     width: '100%',
                     borderRadius: 4,
                     background: 'linear-gradient(to right, #3182ce, #fbd38d, #dc2626)'
                 }} />
+                <div className="flex justify-between text-[8px] font-medium text-slate-500 uppercase tracking-tight">
+                    <span>Low attention</span>
+                    <span>High attention</span>
+                </div>
                 {diagnosis?.xai?.conf_text && (
                     <p className="text-[9px] font-medium text-slate-600 mt-2 border-t pt-2 border-slate-100">
                         <span className="font-black text-blue-600 uppercase mr-1">Status:</span>

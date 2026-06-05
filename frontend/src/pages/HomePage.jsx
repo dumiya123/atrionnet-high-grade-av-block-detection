@@ -34,7 +34,8 @@ const HomePage = ({ onNavigate }) => (
                         alt="AtrionNet AI Visualization" 
                         width="600"
                         height="400"
-                        fetchpriority="high"
+                        fetchPriority="high"
+                        decoding="async"
                     />
                 </div>
             </section>
