@@ -34,8 +34,10 @@ REPORT_DIR = Path(__file__).parent / "reports"
 # Initialize predictor
 predictor = None
 
-@app.on_event("startup")
-async def startup_event():
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     global predictor
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
@@ -46,6 +48,9 @@ async def startup_event():
     else:
         print(f"Warning: Checkpoint {CHECKPOINT_PATH} not found. API running in FALLBACK (restricted) mode.")
         predictor = AVBlockPredictor(checkpoint=None)
+    yield
+
+app = FastAPI(title="AtrionNet Clinical API", lifespan=lifespan)
 
 @app.get("/health")
 async def health_check():
