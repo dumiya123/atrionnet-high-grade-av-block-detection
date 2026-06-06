@@ -1,0 +1,71 @@
+name: AtrionNet CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Frontend Install and Build
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+          
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # In a real scenario, you might have a smaller requirements.txt for testing
+          # pip install -r ml_component/requirements.txt
+          # pip install pytest
+          # pytest tests/
+
+  docker-build:
+    needs: test-and-lint
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Normally, you would login to Docker Hub or AWS ECR here:
+      # - name: Login to Docker Hub
+      #   uses: docker/login-action@v2
+      #   with:
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Backend Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.backend
+          push: false # Set to true to push to a registry
+          tags: atrionnet-backend:latest
+          
+      - name: Build Frontend Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./Dockerfile.frontend
+          push: false # Set to true to push to a registry
+          tags: atrionnet-frontend:latest

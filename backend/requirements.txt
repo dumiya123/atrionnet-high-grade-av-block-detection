@@ -1,0 +1,16 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Deep Learning (CPU only for lightweight backend)
+torch>=2.0.0
+
+# API and Server
+fastapi>=0.100.0
+uvicorn>=0.22.0
+python-multipart>=0.0.6
+
+# Data Processing and Signal Processing
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Report Generation
+reportlab>=4.0.0
