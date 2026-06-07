@@ -1,4 +1,5 @@
 import React, { useState, Suspense, lazy } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Navbar from './components/layout/Navbar';
 import './App.css';
 
@@ -34,6 +35,7 @@ const App = () => {
             <Suspense fallback={<PageLoader />}>
                 {renderContent()}
             </Suspense>
+            <SpeedInsights />
         </>
     );
 };
