@@ -56,10 +56,5 @@ backend/uploads/
 backend/reports/
 backend/*.pdf
 
-# Media & Binary outputs
-*.pdf
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.svg
+# Media & Binary outputs (only exclude generated report PDFs)
+# Note: frontend UI assets (*.png, *.svg etc.) are tracked intentionally
