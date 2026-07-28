@@ -20,12 +20,12 @@ COPY ml_component/ /app/ml_component/
 COPY backend/ /app/backend/
 
 # Expose the API port
-EXPOSE 8000
+EXPOSE 7860
 
 # Set environment variables
 ENV PYTHONPATH=/app
 ENV HOST=0.0.0.0
-ENV PORT=8000
+ENV PORT=7860
 
 # Run the FastAPI server
 CMD ["python", "backend/main.py"]
